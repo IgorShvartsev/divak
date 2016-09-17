@@ -1,0 +1,12 @@
+{
+   "autoload": {
+        "classmap": [
+        	"core"
+        ]
+    },
+   "require": {
+      "intervention/image": "^2.3",
+      "verot/class.upload.php": "dev-master",
+      "pimple/pimple"  : "~3.0"
+   }
+}
