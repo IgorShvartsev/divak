@@ -65,11 +65,11 @@ class Router
     protected $_httpMethod;
 
     /**
-    * Middleware name array that should be applied to the given route  
+    * Middleware tag array that should be applied to the given route  
     *
     * @ver string
     */
-    protected $_middlewares = [];
+    protected $_middlewareTags = [];
     
     /**
     * Constructor
@@ -130,7 +130,7 @@ class Router
                             $this->_httpMethod = strtoupper($val['method']);
                         }
                         if (isset($val['middleware'])) {
-                            $this->_middlewares = is_array($val['middleware']) 
+                            $this->_middlewareTags = is_array($val['middleware']) 
                                 ? $val['middleware']
                                 : array_map(function($item){
                                         return trim($item);
@@ -214,9 +214,9 @@ class Router
     * 
     * @return array
     */
-    public function getMiddlewares()
+    public function getMiddlewareTags()
     {
-        return $this->_middlewares;
+        return $this->_middlewareTags;
     }
 
     /**

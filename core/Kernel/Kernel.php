@@ -155,7 +155,7 @@ class Kernel extends Container
         $router   = $this->make(\Kernel\Router::class);
         $middlewareManager = $this->make(\Kernel\Http\MiddlewareManager::class);
 
-        $router ->parseUrl($_SERVER['REQUEST_URI']);
+        $router->parseUrl($_SERVER['REQUEST_URI']);
         if ($router->action) {
             $request->set($this->_tidyInput($router->params), $request::HTTP_TYPE_PARAMS);
             
@@ -172,6 +172,16 @@ class Kernel extends Container
                 try{
                     $method = $reflection->getMethod($router->action);
                     if ($method->isPublic() && !$method->isAbstract()) {
+                        // handle allowed HTTP method for the given route
+                        $allowedHttpMethod = $router->getHttpMethod();
+                        if (!empty($allowedHttpMethod) && $request->getMethod() != $allowedHttpMethod) {
+                            throw new ResponseException('Method ' . $allowedHttpMethod . ' is not allowed' , 405);
+                        }
+                        // handle route middlewares
+                        $routeMiddlewareTags = $router->getMiddlewareTags();
+                        if (count($routeMiddlewareTags) > 0) {
+                            $middlewareManager->handleWithTag($routeMiddlewareTags, $request, $response);
+                        }
                         $this->_launchControlAction($controller, $method);    
                     } else {
                         throw new ResponseException(\Response::getResponseCodeDescription(404), 404);
