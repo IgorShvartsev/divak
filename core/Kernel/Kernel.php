@@ -142,6 +142,7 @@ class Kernel extends Container
             $headers = getallheaders();
         }
         $request->setHeaders($headers);
+        $request->setMethod($_SERVER['REQUEST_METHOD']);
     }
 
     /**

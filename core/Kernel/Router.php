@@ -2,6 +2,8 @@
 
 namespace Kernel;
 
+use \Kernel\Exception\RouteException;
+
 /**
 * Router class
 * 
@@ -24,6 +26,7 @@ class Router
     * @var string
     */
     public $action = 'index';
+
     
     /**
     *  Current module
@@ -44,7 +47,7 @@ class Router
     * 
     * @var string
     */
-    protected $controllerPath = '';
+    protected $_controllerPath = '';
     
     
     /**
@@ -52,7 +55,21 @@ class Router
     * 
     * @var string
     */
-    protected $baseUrl = '';
+    protected $_baseUrl = '';
+
+    /**
+    * HTTP method (GET, POST, PUT, DELETE)
+    *
+    * @var string
+    */
+    protected $_httpMethod;
+
+    /**
+    * Middleware name array that should be applied to the given route  
+    *
+    * @ver string
+    */
+    protected $_middlewares = [];
     
     /**
     * Constructor
@@ -67,9 +84,9 @@ class Router
         }
         if (!empty(\Config::get('app.base_url'))) {
             $baseUrl =  '/'.trim(\Config::get('app.base_url'), '/'); 
-            $this->baseUrl = $baseUrl == '/' ? '' : $baseUrl; 
+            $this->_baseUrl = $baseUrl == '/' ? '' : $baseUrl; 
         }
-        $this->controllerPath = APP_PATH . '/controllers/';
+        $this->_controllerPath = APP_PATH . '/controllers/';
     }
     
     /**
@@ -81,7 +98,7 @@ class Router
     {
         // default param 
         $action  = '';
-        $pattern = str_replace(array('/', '.', ',' ,';'),array('\\/', '\\.', '\\,', '\\;'), $this->baseUrl);
+        $pattern = str_replace(array('/', '.', ',' ,';'),array('\\/', '\\.', '\\,', '\\;'), $this->_baseUrl);
         $uri = preg_replace('$'.$pattern.'$i', '', $uri);
         $uri = preg_replace('/\?.*$/', '', $uri);
         $uri = trim($uri, '/');
@@ -97,13 +114,32 @@ class Router
             $this->params['lang'] = strtolower(\Config::get('app.default_language'));
         }
            
-        // regular expression uri mask  
-        $routes = !empty(\Config::get('route')) ? \Config::get('route') : [];        
-        if (!isset($routes[$uri])) {
+        // handle routers from config/route.php 
+        $routes = !empty(\Config::get('route')) ? \Config::get('route') : []; 
+
+        if (!empty($routes[$uri])) { 
             foreach ($routes as $key => $val)
-            {                        
+            {                       
                 $key = str_replace(':any', '.+', str_replace(':num', '[0-9]+', $key));
-                if (preg_match('#^'.$key.'$#', $uri)) {           
+                if (preg_match('#^'.$key.'$#', $uri)) {  
+                    if (is_array($val)) {
+                        if (!isset($val['action'])) {
+                            throw new RouteException('Key "action" is not defined for route `' . $key . '');
+                        }
+                        if (isset($val['method'])) {
+                            $this->_httpMethod = strtoupper($val['method']);
+                        }
+                        if (isset($val['middleware'])) {
+                            $this->_middlewares = is_array($val['middleware']) 
+                                ? $val['middleware']
+                                : array_map(function($item){
+                                        return trim($item);
+                                    },
+                                    explode(',', $val['middleware'])
+                                  );
+                        }
+                        $val = $val['action'];
+                    }         
                     if (strpos($val, '$') !== false && strpos($key, '(') !== false) {
                         $val = preg_replace('#^'.$key.'$#', $val, $uri);
                     }
@@ -111,9 +147,7 @@ class Router
                     break;
                 }
             }            
-        } else {
-            $uri = $routes[$uri];
-        }
+        } 
 
         $this->params['page'] = '';
            
@@ -121,7 +155,7 @@ class Router
         if (count($uriElements) > 0 ) {
             $controller = array_shift($uriElements);
             $controller = ucfirst(strtolower($controller));
-            if (is_dir($this->controllerPath.$controller)) {
+            if (is_dir($this->_controllerPath.$controller)) {
                 if (count($uriElements) > 0) {
                     $this->controller = $controller . '\\' . ucfirst(array_shift($uriElements)) .'Controller';
                 } else {
@@ -130,7 +164,7 @@ class Router
                 $this->module = $controller;
             } else {
                 $this->controller = $controller.'Controller';
-                if (!file_exists($this->controllerPath.$this->controller.'.php')) {
+                if (!file_exists($this->_controllerPath.$this->controller.'.php')) {
                     $this->controller = 'IndexController';
                     $action = $controller;
                 }
@@ -140,7 +174,7 @@ class Router
             if (!empty($action)) {
                 $this->action = strtolower(preg_replace('/[\'";!@#$%^&*()[]=|{}:;.,?`~<> ]/i','', $action));
                 // make camelcase name it there is "_" between words
-                $this->action = preg_replace_callback('/_([a-z])/i', function($matches){
+                $this->action = preg_replace_callback('/[-]([a-z])/i', function($matches){
                     return ucfirst($matches[1]);
                 }, $this->action);
             }
@@ -172,6 +206,26 @@ class Router
     */
     public function getBaseUrl()
     {
-        return $this->baseUrl;   
+        return $this->_baseUrl;   
+    }
+
+    /**
+    * Get middleware name array applied to given route
+    * 
+    * @return array
+    */
+    public function getMiddlewares()
+    {
+        return $this->_middlewares;
+    }
+
+    /**
+    * Get HTTP method applied to given route
+    * 
+    * @return string
+    */
+    public function getHttpMethod()
+    {
+        return $this->_httpMethod;
     }
 }

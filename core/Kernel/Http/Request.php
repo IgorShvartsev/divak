@@ -34,7 +34,8 @@ class Request
     protected $_json = [];
     /** @var [] */
     protected $_params = [];
-
+    /** @var string */
+    protected $_httpMethod;
 
     /* RESSTRICT methods for making singleton */
     private function __construct(){}
@@ -118,6 +119,16 @@ class Request
     public function getJson($name, $default = null)
     {
         return isset($this->_json[$name]) ? $this->_json[$name] : $default; 
+    }
+
+    /**
+    * Get HTTP method
+    *
+    * @return string
+    */
+    public function getMethod()
+    {
+        return $this->_httpMethod;
     }
    
     /**
@@ -246,5 +257,15 @@ class Request
    public function setHeaders($headers)
    {
         $this->_headers = $headers;
+   }
+
+   /**
+   * Set HTTP method
+   *
+   * @param string $httpMethod
+   */
+   public function setMethod($httpMethod)
+   {
+        $this->_httpMethod = $httpMethod;
    }
 }

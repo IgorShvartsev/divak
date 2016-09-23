@@ -1,5 +1,5 @@
 <?php
 
 return [
-	'root' => 'admin/index/index',
+	'root' => ['method' => 'get', 'action' => 'admin/index/index', 'middleware' => 'auth'],
 ];
