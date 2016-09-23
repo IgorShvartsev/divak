@@ -19,7 +19,9 @@ class Request
     const HTTP_TYPE_PARAMS   = 6;
 
     /** @var \Request */
-	  private static $_instance = null;
+	private static $_instance = null;
+    /** @var [] */ 
+    private $_headers = [];
     /** @var [] */
     protected $_post = [];
     /** @var [] */
@@ -58,6 +60,27 @@ class Request
     public function getCookie($name, $default = null)
     {
         return isset($this->_cookie[$name]) ? $this->_cookie[$name] : $default; 
+    }
+
+    /**
+    * Get given header
+    *
+    * @param string $headerName
+    * @return string | null
+    */
+    public function getHeader($headerName)
+    {
+        return $this->headerExists() ? $this->_headers[$headerName] : null;
+    }
+
+    /**
+    * Get all request headers
+    *
+    * @return array
+    */
+    public function getHeaders()
+    {
+        return $this->_headers;
     }
 
     /**
@@ -144,6 +167,17 @@ class Request
     }
 
     /**
+    * Check if given header is available
+    *
+    * @param  string $headerName
+    * @return boolean
+    */
+    public function headerExists($headerName)
+    {
+        return array_key_exists($headerName, $this->_headers); 
+    }
+
+    /**
     * Checks if request is GET
     * 
     * @return boolean
@@ -202,5 +236,15 @@ class Request
         default:
             throw new \Exception('Request type is unknown');
       }
+   }
+
+   /**
+   * Set headers
+   *
+   * @param array $headers
+   */
+   public function setHeaders($headers)
+   {
+        $this->_headers = $headers;
    }
 }

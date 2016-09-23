@@ -131,6 +131,17 @@ class Kernel extends Container
         if (json_last_error() == JSON_ERROR_NONE) {
             $request->set($this->_tidyInput($jsonData), $request::HTTP_TYPE_JSON);
         }
+        $headers = [];
+        if (!function_exists('getallheaders')) {
+            foreach ($_SERVER as $name => $value) {
+                if (strtolower(substr($name, 0, 5)) == 'http_') {
+                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                }
+            }
+        } else {
+            $headers = getallheaders();
+        }
+        $request->setHeaders($headers);
     }
 
     /**
