@@ -123,20 +123,30 @@ class Router
                 $key = str_replace(':any', '.+', str_replace(':num', '[0-9]+', $key));
                 if (preg_match('#^'.$key.'$#', $uri)) {  
                     if (is_array($val)) {
+                        // check if "action" key is set in array, it's required
                         if (!isset($val['action'])) {
                             throw new RouteException('Key "action" is not defined for route `' . $key . '');
                         }
+                        // check if "method" key is set in array
                         if (isset($val['method'])) {
                             $this->_httpMethod = strtoupper($val['method']);
                         }
-                        if (isset($val['middleware'])) {
-                            $this->_middlewareTags = is_array($val['middleware']) 
-                                ? $val['middleware']
-                                : array_map(function($item){
-                                        return trim($item);
-                                    },
-                                    explode(',', $val['middleware'])
-                                  );
+                        // check if "middleware" key is set in array with condition "before" and/or  "after"
+                        // if there are no any conditions middleware is supposed to have condition "before" 
+                        // on default
+                        if (array_key_exists('middleware', $val)) {
+                            $isConditionAvailable = false;
+                            foreach(['before', 'after'] as $mdlCondition) {
+                                if (is_array($val['middleware']) && array_key_exists($mdlCondition, $val['middleware']) ) {
+                                    if (!empty($val['middleware'][$mdlCondition])) {
+                                        $this->_middlewareTags[$mdlCondition] = $this->_normalizeMiddlewareTags($val['middleware'][$mdlCondition]);
+                                    }
+                                    $isConditionAvailable = true;
+                                }
+                            }
+                            if (!$isConditionAvailable && !empty($val['middleware'])) {
+                                $this->_middlewareTags = $this->_normalizeMiddlewareTags($val['middleware']);
+                            }
                         }
                         $val = $val['action'];
                     }         
@@ -227,5 +237,21 @@ class Router
     public function getHttpMethod()
     {
         return $this->_httpMethod;
+    }
+
+    /**
+    * Normalize middleware tag list to array
+    *
+    * @param string|array  $middlewareTags - comma separated tags or array
+    * @return array
+    */
+    protected function _normalizeMiddlewareTags($middlewareTags)
+    {
+        return is_array($middlewareTags) 
+            ? $middlewareTags
+            : array_map(function($item){
+                return trim($item);
+              }, explode(',', $middlewareTags)
+            );
     }
 }

@@ -179,7 +179,11 @@ class Kernel extends Container
                         }
                         // handle route middlewares
                         $routeMiddlewareTags = $router->getMiddlewareTags();
-                        if (count($routeMiddlewareTags) > 0) {
+                        if (array_key_exists('before', $routeMiddlewareTags) || array_key_exists('after', $routeMiddlewareTags)) {
+                            if (!empty($routeMiddlewareTags['before']) && count($routeMiddlewareTags['before']) > 0) {
+                                $middlewareManager->handleWithTag($routeMiddlewareTags['before'], $request, $response);
+                            }
+                        } else if (count($routeMiddlewareTags) > 0) {
                             $middlewareManager->handleWithTag($routeMiddlewareTags, $request, $response);
                         }
                         $this->_launchControlAction($controller, $method);    
@@ -253,6 +257,12 @@ class Kernel extends Container
 
         // invoke contol metod (ACTION)
         $method->invoke($controller);
+
+        // route middleware after
+        $routeMiddlewareTags = $router->getMiddlewareTags();
+        if (array_key_exists('after', $routeMiddlewareTags) && count($routeMiddlewareTags['after']) > 0) {
+            $middlewareManager->handleWithTag($routeMiddlewareTags['after'], $request, $response);
+        }
 
         // run middlewares after 
         $middlewareManager->handleAfter($request, $response);
