@@ -129,7 +129,17 @@ class Session
     */
     public static function get($name)
     {
-        return isset($_SESSION[$name]) ? $_SESSION[$name] : false;
+        return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
+    }
+
+    /**
+    * Get all session variables
+    *
+    * @return []
+    */
+    public static function getAll()
+    {
+        return $_SESSION;
     }
 
     /**

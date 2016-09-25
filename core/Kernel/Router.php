@@ -93,8 +93,9 @@ class Router
     * Parses url string
     * 
     * @param string $uri
+    * @param string $httpMethod
     */
-    public function parseUrl($uri)
+    public function parseUrl($uri, $httpRequestMethod)
     {
         // default param 
         $action  = '';
@@ -116,48 +117,61 @@ class Router
            
         // handle routers from config/route.php 
         $routes = !empty(\Config::get('route')) ? \Config::get('route') : []; 
-
-        if (!empty($routes[$uri])) { 
-            foreach ($routes as $key => $val)
-            {                       
-                $key = str_replace(':any', '.+', str_replace(':num', '[0-9]+', $key));
-                if (preg_match('#^'.$key.'$#', $uri)) {  
-                    if (is_array($val)) {
-                        // check if "action" key is set in array, it's required
-                        if (!isset($val['action'])) {
-                            throw new RouteException('Key "action" is not defined for route `' . $key . '');
-                        }
-                        // check if "method" key is set in array
-                        if (isset($val['method'])) {
-                            $this->_httpMethod = strtoupper($val['method']);
-                        }
-                        // check if "middleware" key is set in array with condition "before" and/or  "after"
-                        // if there are no any conditions middleware is supposed to have condition "before" 
-                        // on default
-                        if (array_key_exists('middleware', $val)) {
-                            $isConditionAvailable = false;
-                            foreach(['before', 'after'] as $mdlCondition) {
-                                if (is_array($val['middleware']) && array_key_exists($mdlCondition, $val['middleware']) ) {
-                                    if (!empty($val['middleware'][$mdlCondition])) {
-                                        $this->_middlewareTags[$mdlCondition] = $this->_normalizeMiddlewareTags($val['middleware'][$mdlCondition]);
+        $isFoundRoute = false;
+        foreach ($routes as $key => $val)
+        {                       
+            $key = str_replace(':any', '.+', str_replace(':num', '[0-9]+', $key));
+ 
+            if (preg_match('#^'.$key.'$#', $uri)) {  
+                if (is_array($val)) {
+                    foreach($val as $httpMethod => $data) {
+                        if (is_array($data)) {
+                            // check if "action" key is set in array, it's required
+                            if (!isset($data['action'])) {
+                                throw new RouteException('Key "action" is not defined for route `' . $key . '');
+                            }
+                            // check if "middleware" key is set in array with condition "before" and/or  "after"
+                            // if there are no any conditions middleware is supposed to have condition "before" 
+                            // on default
+                            if (array_key_exists('middleware', $data)) {
+                                $isConditionAvailable = false;
+                                foreach(['before', 'after'] as $mdlCondition) {
+                                    if (is_array($data['middleware']) && array_key_exists($mdlCondition, $data['middleware']) ) {
+                                        if (!empty($data['middleware'][$mdlCondition])) {
+                                            $this->_middlewareTags[$mdlCondition] = $this->_normalizeMiddlewareTags($data['middleware'][$mdlCondition]);
+                                        }
+                                        $isConditionAvailable = true;
                                     }
-                                    $isConditionAvailable = true;
+                                }
+                                if (!$isConditionAvailable && !empty($data['middleware'])) {
+                                    $this->_middlewareTags = $this->_normalizeMiddlewareTags($data['middleware']);
                                 }
                             }
-                            if (!$isConditionAvailable && !empty($val['middleware'])) {
-                                $this->_middlewareTags = $this->_normalizeMiddlewareTags($val['middleware']);
-                            }
+                            $val = $data['action'];
+                        } else {
+                            $val = $data;
                         }
-                        $val = $val['action'];
-                    }         
-                    if (strpos($val, '$') !== false && strpos($key, '(') !== false) {
-                        $val = preg_replace('#^'.$key.'$#', $val, $uri);
+                        
+                        $httpMethod = strtoupper($httpMethod);
+                        $this->_httpMethod = $httpMethod;
+                        if (strtoupper($httpRequestMethod) == $httpMethod) {
+                            break;
+                        }
                     }
-                    $uri = $val;        
-                    break;
+                }    
+
+                if (strpos($val, '$') !== false && strpos($key, '(') !== false) {
+                    $val = preg_replace('#^'.$key.'$#', $val, $uri);
                 }
-            }            
-        } 
+                $uri = $val; 
+                $isFoundRoute = true;       
+                break;
+            }
+        }            
+
+        if (!$isFoundRoute) {
+            return false;
+        }
 
         $this->params['page'] = '';
            
@@ -207,6 +221,8 @@ class Router
             }
         }
         $this->params['pageid']  = md5($this->params['lang'] . $this->controller . $this->action . $this->params['page']);
+        
+        return true;
     }
     
     /**

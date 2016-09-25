@@ -155,7 +155,10 @@ class Kernel extends Container
         $router   = $this->make(\Kernel\Router::class);
         $middlewareManager = $this->make(\Kernel\Http\MiddlewareManager::class);
 
-        $router->parseUrl($_SERVER['REQUEST_URI']);
+        $isFoundRoute = $router->parseUrl($_SERVER['REQUEST_URI'], $request->getMethod());
+        if (!$isFoundRoute) {
+            throw new ResponseException(\Response::getResponseCodeDescription(404), 404);
+        }
         if ($router->action) {
             $request->set($this->_tidyInput($router->params), $request::HTTP_TYPE_PARAMS);
             
@@ -174,6 +177,7 @@ class Kernel extends Container
                     if ($method->isPublic() && !$method->isAbstract()) {
                         // handle allowed HTTP method for the given route
                         $allowedHttpMethod = $router->getHttpMethod();
+
                         if (!empty($allowedHttpMethod) && $request->getMethod() != $allowedHttpMethod) {
                             throw new ResponseException('Method ' . $allowedHttpMethod . ' is not allowed' , 405);
                         }
