@@ -77,11 +77,6 @@ class Router
     */
     public function __construct()
     {
-        if (!empty(\Config::get('app.default_controller')))
-        {
-        	$controller = str_ireplace('Controller', '', \Config::get('app.default_controller'));
-            $this->controller = ucfirst($controller).'Controller';    
-        }
         if (!empty(\Config::get('app.base_url'))) {
             $baseUrl =  '/'.trim(\Config::get('app.base_url'), '/'); 
             $this->_baseUrl = $baseUrl == '/' ? '' : $baseUrl; 
