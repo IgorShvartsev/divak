@@ -159,6 +159,7 @@ class Kernel extends Container
         if (!$isFoundRoute) {
             throw new ResponseException(\Response::getResponseCodeDescription(404), 404);
         }
+
         if ($router->action) {
             $request->set($this->_tidyInput($router->params), $request::HTTP_TYPE_PARAMS);
             
@@ -238,10 +239,31 @@ class Kernel extends Container
     */
     protected function _launchControlAction(\Controller $controller, \ReflectionMethod $method)
     {   
+        $cache = null;
         $request  = $this->make(\Kernel\Http\Request::class);
         $response = $this->make(\Kernel\Http\Response::class);
         $router   = $this->make(\Kernel\Router::class);
         $middlewareManager = $this->make(\Kernel\Http\MiddlewareManager::class);
+
+        // using cache if it's enabled for given route
+        // check cache hit  
+        $cacheSettings = $router->getCacheSettings();
+        if ($cacheSettings['enable'] && $request->getMethod() == 'GET') {
+            $options = \Config::get('cache.options');
+            $options['lifetime'] = $cacheSettings['lifetime'];
+            $cache = \Cache::factory(\Config::get('cache.type'), $options);
+            $cacheKey = $this->_getCacheKey($request, \Session::getInstance());
+            if ($cache->test($cacheKey)) {
+                $data = unserialize($cache->load($cacheKey));
+                foreach($data['headers'] as $key => $value) {
+                    header("$key:$value");
+                }
+                $response->setBody($data['output']);
+                $output  = implode('', $response->getBody());
+                file_put_contents('php://output', $output);
+                exit();
+            }
+        }
 
         $controllerName = strtolower(str_ireplace('Controller', '', get_class($controller)));
         $layout = !empty(\Config::get('app.default_layout')) ? \Config::get('app.default_layout') : null;
@@ -280,8 +302,30 @@ class Kernel extends Container
             $out = ob_get_clean();
             $response->setBody($out);
             $output  = implode('', $response->getBody());
+
+            // if cache enabled save results to it
+            if ($cache) {
+                $cache->save(serialize([
+                    'headers' => $headers,
+                    'output'  => $output
+                ]), $cacheKey);
+            }
+
             file_put_contents('php://output', $output);
         }
+    }
+
+    /**
+    * Get unique cache key
+    *
+    * @param \Http\Request $request
+    * @param \Session $session
+    * @return string 
+    */
+    protected function _getCacheKey($request, $session)
+    {
+        return serialize($request->getParams()) 
+             . serialize($session->getAll());
     }
 
 }

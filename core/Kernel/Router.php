@@ -67,9 +67,20 @@ class Router
     /**
     * Middleware tag array that should be applied to the given route  
     *
-    * @ver string
+    * @var string
     */
     protected $_middlewareTags = [];
+
+    /**
+    * Cache used for the given route
+    * Mostly this cache is applied to http GET type
+    * 
+    * @var array
+    */
+    protected $_cacheSettings = [
+        'enable' => false,
+        'lifetime' => 3600
+    ];
     
     /**
     * Constructor
@@ -140,6 +151,14 @@ class Router
                                 }
                                 if (!$isConditionAvailable && !empty($data['middleware'])) {
                                     $this->_middlewareTags = $this->_normalizeMiddlewareTags($data['middleware']);
+                                }
+                            }
+                            // check if there is cache settings for the given route
+                            if (array_key_exists('cache', $data) && is_array($data['cache'])) {
+                                foreach($data['cache'] as $key => $v) {
+                                    if (isset($this->_cacheSettings[$key])) {
+                                        $this->_cacheSettings[$key] = $v;
+                                    }
                                 }
                             }
                             $val = $data['action'];
@@ -248,6 +267,16 @@ class Router
     public function getHttpMethod()
     {
         return $this->_httpMethod;
+    }
+
+    /**
+    * Get cache settings for the given route
+    *
+    * @return array
+    */
+    public function getCacheSettings()
+    {
+        return $this->_cacheSettings;
     }
 
     /**

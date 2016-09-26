@@ -13,7 +13,6 @@ use \Cache\Exception\CacheFileException;
 */
 class CacheFile extends CacheAbstract
 {
-    protected $cachename;
     
     /**
     * Options
@@ -22,7 +21,7 @@ class CacheFile extends CacheAbstract
     */
     protected $_options = array(
         'cache_dir'         => null,
-        'file_name_prefix'  => 'bit',
+        'file_name_prefix'  => 'cache',
         'control_type'      => 'md5',
         'file_locking'      => true
     );
@@ -32,12 +31,11 @@ class CacheFile extends CacheAbstract
     * 
     * @param array $_options
     */
-    public function __construct($cachename, $_options = array(), $lifetime = 3600, $logging = false)
+    public function __construct($_options = array(), $logging = false)
     {
         parent::__construct($_options);
-        $this->cachename = $cachename;
-        $this->directives['lifetime'] = $lifetime;
-        $this->directives['logging']  = $logging;
+        $this->_directives['lifetime'] = isset($_options['lifetime']) ? $_options['lifetime'] : 3600;
+        $this->_directives['logging']  = $logging;
         if ($this->_options['cache_dir'] !== null) { 
             $this->setCacheDir($this->_options['cache_dir']);
         } else {
@@ -49,7 +47,7 @@ class CacheFile extends CacheAbstract
      * Set the cache_dir (particular case of setOption() method)
      *
      * @param  string  $value
-     * @param  boolean $trailingSeparator If true, add a trailing separator is necessary
+     * @param  boolean $trailingSeparator I$this->controllerPathf true, add a trailing separator is necessary
      * @throws Zend_Cache_Exception
      * @return void
      */
@@ -68,7 +66,7 @@ class CacheFile extends CacheAbstract
         $this->_options['cache_dir'] = $value;
     }
     
-    public function load($id)
+    public function load($id, $doNotTestCacheValidity = false)
     {
         if (!$this->test($id)) {
             // The cache is not hit !
@@ -82,10 +80,11 @@ class CacheFile extends CacheAbstract
     public function test($id)
     {
         $id = $this->_hash($id, $this->_options['control_type']);
-        $semaphoreTime = $this->_getLastModifiedTimeSemaphore();
         $file = $this->_file($id);
         if ( !file_exists($file) ) return false;
-        return (time() - $semaphoreTime) <= $this->directives['lifetime']; 
+        clearstatcache();
+        $lastModifiedTime = (int)(filemtime($file)/$this->_directives['lifetime']) * $this->_directives['lifetime']; 
+        return (time() - $lastModifiedTime) <= $this->_directives['lifetime']; 
     }
     
     public function save($data, $id)
@@ -93,7 +92,6 @@ class CacheFile extends CacheAbstract
         $id = $this->_hash($id, $this->_options['control_type']);
         $file = $this->_file($id);
         $this->_filePutContents($file, $data);
-        $this->_updateSemaphore();
     }
     
     public function remove($id)
@@ -106,8 +104,7 @@ class CacheFile extends CacheAbstract
     {
         $path = $this->_options['cache_dir'];
         $prefix = $this->_options['file_name_prefix'];
-        $cachename = $this->cachename;
-        $glob = @glob($path . $prefix . '_' . $cachename . '_*');
+        $glob = @glob($path . $prefix . '_*');
         if ($glob === false) {
             return true;
         }
@@ -118,7 +115,6 @@ class CacheFile extends CacheAbstract
                 $this->_remove($id);
             }
         }
-        @unlink($path . $prefix . '_' . $cachename );
         return true;
     }
     
@@ -168,8 +164,7 @@ class CacheFile extends CacheAbstract
     protected function _idToFileName($id)
     {
         $prefix = $this->_options['file_name_prefix'];
-        $cachename = $this->cachename;
-        $result = $prefix . '_' . $cachename . '_' . $id;
+        $result = $prefix . '_' . $id;
         return $result;
     }
     
@@ -242,8 +237,7 @@ class CacheFile extends CacheAbstract
     protected function _fileNameToId($fileName)
     {
         $prefix = $this->_options['file_name_prefix'];
-        $cachename = $this->cachename;
-        return preg_replace('~^' . $prefix  . '_' . $cachename . '_(.*)$~', '$1', $fileName);
+        return preg_replace('~^' . $prefix  . '_(.*)$~', '$1', $fileName);
     }
     
     /**
@@ -261,33 +255,4 @@ class CacheFile extends CacheAbstract
         return true; 
     }
     
-    /**
-    *  Updates semaphor file
-    */
-    protected function _updateSemaphore()
-    {
-        $path = $this->_options['cache_dir'];
-        $prefix = $this->_options['file_name_prefix'];
-        $cachename = $this->cachename;
-        $semaphore = $path . $prefix . '_' . $cachename;
-        $this->_filePutContents($semaphore, '1');
-    }
-    
-    /**
-    *  Get last modified time of semaphor file
-    * 
-    *  @return numeric modified timestamp
-    */
-    protected function _getLastModifiedTimeSemaphore()
-    {
-        $path = $this->_options['cache_dir'];
-        $prefix = $this->_options['file_name_prefix'];
-        $cachename = $this->cachename;
-        $semaphore = $path . $prefix . '_' . $cachename;
-        if (!file_exists($semaphore)) {
-            $this->_updateSemaphore();
-        }
-        clearstatcache();
-        return (int)(filemtime($semaphore)/$this->directives['lifetime']) * $this->directives['lifetime']; 
-    }
 }

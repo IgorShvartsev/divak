@@ -88,7 +88,7 @@ class PimpleContainerDriver implements ContainerInterface
 		if (isset($this->_container[$className])) {
 			return $this->_container[$className];
 		} else {
-			throw new ContainerException('Container dosn\'t contain key "' . $className . '"');
+			throw new ContainerException('Container doesn\'t contain key "' . $className . '"');
 		}
 	}
 

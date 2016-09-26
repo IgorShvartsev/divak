@@ -20,19 +20,13 @@ class Cache
     * @param boolean $autoload If autoload is used
     * @return class
     */
-    public static function factory( $type, $options = array() , $autoload = true )
+    public static function factory( $type, $options = array())
     {
         if (empty($type)) {
             throw new CacheExeption('Cache type is empty.');
         }
-        $class = 'Cache' . $type;
-        if ($autoload) {
-            $path = dirname(__FILE__) . '/Cache/' . $class . '.php';
-            if (!self::_isReadable($path)){
-                throw new CacheException('File '. $path . ' not exists or is not readable');
-            }
-            require_once $path;
-        } elseif (!class_exists($class)) {
+        $class = '\Cache\Cache' . $type;
+        if (!class_exists($class)) {
             throw new CacheException('Class '. $class .' not defined.');
         }
         return new $class($options);

@@ -138,7 +138,7 @@ class Request
     * @param string $default
     * @return mixed
     */
-    public function getQuery( $name, $default = null)
+    public function getQuery($name, $default = null)
     {
         return isset($this->_get[$name]) ? $this->_get[$name] : $default; 
     }
@@ -150,9 +150,39 @@ class Request
     * @param string $default
     * @return mixed
     */
-    public function getParam( $name, $default = null)
+    public function getParam($name, $default = null)
     {
         return isset($this->_params[$name]) ? $this->_params[$name] : $default; 
+    }
+
+    /**
+    * Get all GET parameters 
+    *
+    * @return array 
+    */
+    public function getQueryParams() 
+    {
+        return $this->_get;
+    }
+
+    /**
+    * Get all POST parameters 
+    *
+    * @return array 
+    */
+    public function getPostParams() 
+    {
+        return $this->_post;
+    }
+
+    /**
+    * Get all JSON parameters 
+    *
+    * @return array 
+    */
+    public function getJsonParams() 
+    {
+        return $this->_json;
     }
 
     /**
@@ -172,7 +202,7 @@ class Request
     * @param string $default
     * @return mixed
     */
-    public function getPost( $name, $default = null)
+    public function getPost($name, $default = null)
     {
         return isset($this->_post[$name]) ? $this->_post[$name] : $default; 
     }
@@ -195,7 +225,7 @@ class Request
     */
     public function isGet()
     {
-        return count($this->_get) > 0;  
+        return $this->getMethod() == 'GET';  
     }
    
     /**
@@ -205,7 +235,7 @@ class Request
     */
     public function isPost()
     {
-        return count($this->_post) > 0;  
+        return $this->getMethod() == 'POST';   
     }
     
     /**
@@ -268,4 +298,5 @@ class Request
    {
         $this->_httpMethod = $httpMethod;
    }
+
 }
