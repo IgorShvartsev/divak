@@ -11,9 +11,6 @@ class Controller
 {
     /** @var \View */
     protected $view; 
-   
-    /** @var string */
-    protected $baseUrl = '';
 
     /** @var boolean */
     protected $buffering = true;

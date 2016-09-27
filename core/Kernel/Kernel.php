@@ -21,8 +21,6 @@ class Kernel extends Container
     /** @var boolean */
     private $_run = false;
 
-    /** @var boolean  */
-    protected $_buffering = true;
 
     /**
     * Get instance of Kernel class
@@ -248,13 +246,15 @@ class Kernel extends Container
         // using cache if it's enabled for given route
         // check cache hit  
         $cacheSettings = $router->getCacheSettings();
-        if ($cacheSettings['enable'] && $request->getMethod() == 'GET') {
+        if ($cacheSettings['enable'] && $request->getMethod() == 'GET' && count($request->getQueryParams()) == 0) {
             $options = \Config::get('cache.options');
             $options['lifetime'] = $cacheSettings['lifetime'];
             $cache = \Cache::factory(\Config::get('cache.type'), $options);
             $cacheKey = $this->_getCacheKey($request, \Session::getInstance());
-            if ($cache->test($cacheKey)) {
-                $data = unserialize($cache->load($cacheKey));
+            if ($data = $cache->load($cacheKey)) {
+                if ($data) {
+                    $data = unserialize($data);
+                }
                 foreach($data['headers'] as $key => $value) {
                     header("$key:$value");
                 }
@@ -272,14 +272,8 @@ class Kernel extends Container
             new \View($controllerName, $layout, $router->action, $router->params['lang'])
         );
         $controller->view->setBaseUrl($router->getBaseUrl());
-        // run  "init" method if available
-        if (method_exists($controller, 'init')) {    
-            $controller->init();
-        }
-
-        if ($this->_buffering) { 
-            ob_start();
-        }
+       
+        ob_start();
 
         // invoke contol metod (ACTION)
         $method->invoke($controller);
@@ -293,26 +287,26 @@ class Kernel extends Container
         // run middlewares after 
         $middlewareManager->handleAfter($request, $response);
 
-        // output if buffering is enabled
-        if ($this->_buffering) {
-            $headers = $response->getHeaders();
-            foreach($headers as $key => $value) {
-                header("$key:$value");
-            }
-            $out = ob_get_clean();
-            $response->setBody($out);
-            $output  = implode('', $response->getBody());
-
-            // if cache enabled save results to it
-            if ($cache) {
-                $cache->save(serialize([
-                    'headers' => $headers,
-                    'output'  => $output
-                ]), $cacheKey);
-            }
-
-            file_put_contents('php://output', $output);
+        // output headers first
+        $headers = $response->getHeaders();
+        foreach($headers as $key => $value) {
+            header("$key:$value");
         }
+        
+        // thent output content
+        $out = ob_get_clean();
+        $response->setBody($out);
+        $output  = implode('', $response->getBody());
+
+        // if cache enabled save results to it
+        if ($cache) {
+            $cache->save(serialize([
+                'headers' => $headers,
+                'output'  => $output
+            ]), $cacheKey);
+        }
+
+        file_put_contents('php://output', $output);
     }
 
     /**

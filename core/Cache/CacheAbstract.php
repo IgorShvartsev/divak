@@ -57,6 +57,35 @@ abstract class CacheAbstract
         }
         return true;
     }
+
+    /**
+    * Start cache helper
+    * 
+    * @param mixed $id
+    * @return string|false
+    */
+    public function start($id)
+    {   
+        if ($out = $this->load($id)) {
+            return $out;
+        } else {
+            ob_start();
+            return false;
+        }
+        return false;
+    }
+    
+    /**
+    * End cache helper
+    * 
+    * @param mixed $id
+    * @return string
+    */
+    public function end()
+    {
+        $out = ob_get_clean();
+        return $out;
+    }
     
     public function load($id, $doNotTestCacheValidity = false){}
     

@@ -64,12 +64,6 @@ class View
     */
     protected $templateData = [];
     
-    /**
-    * Cache object initiated by Cache factory class
-    * 
-    * @var object
-    */
-    public $cache = null;
     
     /**
     * Constructor
@@ -248,42 +242,6 @@ class View
         echo $url;
     }
     
-    /**
-    * Start cache helper
-    * Starts caching if cache object as property of View class exists
-    * 
-    * @param mixed $id
-    * @return boolean  false if missed, true if cached
-    */
-    public function cacheStart($id)
-    {   
-        if (isset($this->cache) && is_object($this->cache)){
-            if ($out = $this->cache->load($id)) {
-                echo $out;
-                return true;
-            } else {
-                 ob_start();
-                 return false;
-            }
-        }
-        return false;
-    }
-    
-    /**
-    * End cache helper
-    * Ends caching if cache object as property of View class exists
-    * 
-    * @param mixed $id
-    */
-    public function cacheEnd($id)
-    {
-        if (isset($this->cache) && is_object($this->cache)){
-            $out = ob_get_contents();
-            ob_end_clean();
-            $this->cache->save($out, $id);
-            echo $out;
-        }
-    }
     
     /**
     * Translator helper 
@@ -357,8 +315,7 @@ class View
             if (file_exists($this->viewPath.$this->layout.'.phtml')) {  
                 ob_start();
                 include_once($this->viewPath.$this->layout.'.phtml');
-                $out = ob_get_contents();
-                ob_end_clean();
+                $out = ob_get_clean();
                 return $out;
             } else {
                 throw new \Exception('Layout ' . $this->layout . '.phtml does not exist in views  root folder');
@@ -366,8 +323,7 @@ class View
         } else {
             ob_start();
             $this->getContent();
-            $out = ob_get_contents();
-            ob_end_clean();
+            $out = ob_get_clean();
             return $out;
         }
     }
