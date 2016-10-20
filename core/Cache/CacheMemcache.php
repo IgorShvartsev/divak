@@ -1,5 +1,4 @@
- <?php
-
+<?php
 namespace Cache;
 
 use \Cache\Exception\CacheMemcacheException;

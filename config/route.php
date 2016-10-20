@@ -14,8 +14,9 @@ return [
 
 	'root' => [
 		'get' => [ 
-			'action' => 'admin/index/index', 
+			'action'     => 'admin/index/index', 
 			'middleware' => ['before'=>'auth']
 		]
 	],
 ];
+

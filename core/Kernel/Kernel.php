@@ -297,12 +297,12 @@ class Kernel extends Container
             header("$key:$value");
         }
         
-        // thent output content
+        // then output content
         $out = ob_get_clean();
         $response->setBody($out);
         $output  = implode('', $response->getBody());
 
-        // if cache enabled save results to it
+        // if cache is enabled save results to it
         if ($cache) {
             $cache->save(serialize([
                 'headers' => $headers,

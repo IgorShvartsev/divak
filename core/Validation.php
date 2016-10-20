@@ -218,7 +218,7 @@ class Validation
                 continue;
             }
             if (!method_exists('Validation', $vMethod)) {
-                throw new Exception('Validation method is undefined. Look Validation.class for correct method');
+                throw new \Exception('Validation method is undefined. Look Validation.class for correct method');
             }
             if ($vMethod=='minLegth' || $vMethod=='maxLength' || $vMethod=='exactLength') {
                 if (!self::$vMethod($word, $val)) {
