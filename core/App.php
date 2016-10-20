@@ -10,11 +10,11 @@
 */
 class App extends \Facade
 {
-    /**
-  	* Returns object instance
-  	*
-  	* @return Object
-  	*/
+	/**
+	* Returns object instance
+	*
+	* @return Object
+	*/
 	public static function getObjectInstance()
 	{
 		return \Kernel\Kernel::getInstance();
