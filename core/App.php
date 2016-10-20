@@ -15,8 +15,8 @@ class App extends \Facade
   	*
   	* @return Object
   	*/
-  	public static function getObjectInstance()
-  	{
-      	return \Kernel\Kernel::getInstance();
-  	}
+	public static function getObjectInstance()
+	{
+		return \Kernel\Kernel::getInstance();
+	}
 }
