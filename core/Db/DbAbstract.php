@@ -10,8 +10,7 @@ namespace Db;
 * @version 1.0
 */
 abstract class DbAbstract
-{ 
-
+{
     const SQL_TYPE_INSERT = 0;
     const SQL_TYPE_UPDATE = 1;
    
@@ -39,14 +38,14 @@ abstract class DbAbstract
     
     /**
     * query
-    * 
+    *
     * @param string $query
     */
     abstract public function query($query);
     
     /**
     * fetch
-    * 
+    *
     * @param mixed $params
     * @param numeric $mode - returned values 0 - assoc array, 1 - object
     * @return object|array
@@ -55,7 +54,7 @@ abstract class DbAbstract
     
     /**
     * fetchAll
-    * 
+    *
     * @param mixed $params
     * @param numeric $mode - returned values 0 - assoc array, 1 - object
     * @return object|array
@@ -70,11 +69,11 @@ abstract class DbAbstract
     
     /**
     * Quotes target value
-    * 
+    *
     * @param string|int $value
-    * @return string|int  
+    * @return string|int
     */
-    abstract public function quote($value); 
+    abstract public function quote($value);
     
     
     /**
@@ -102,13 +101,13 @@ abstract class DbAbstract
     * @param string $table - table name
     * @param array $data
     * @param int $sqlType -  0 - insert sql,  1 - update sql
-    * @return string  
+    * @return string
     */
     public function prepareSqlFromArray($table, $data, $sqlType = 0)
     {
         $sql = '';
         
-        if ( ! is_array(reset($data))) {
+        if (! is_array(reset($data))) {
             $data = array($data);
         }
         
@@ -116,25 +115,24 @@ abstract class DbAbstract
             reset($data);
         }
         // get columns
-        $columns = array_map(function($val){
+        $columns = array_map(function ($val) {
             return '`' . $val . '`';
         }, array_keys($data[key($data)]));
         // get parameters
-        $parameters = array_map(function(){
-                 return '?';
+        $parameters = array_map(function () {
+            return '?';
         }, $columns);
         
         if ($sqlType == self::SQL_TYPE_INSERT) {
-            $sql = "INSERT INTO $table (" . implode(',' , $columns) . ') VALUES (' . implode(',', $parameters) . ')';
-        } else if ($sqlType == self::SQL_TYPE_UPDATE) {
-            $updateData = array_map(function($column, $param){
+            $sql = "INSERT INTO $table (" . implode(',', $columns) . ') VALUES (' . implode(',', $parameters) . ')';
+        } elseif ($sqlType == self::SQL_TYPE_UPDATE) {
+            $updateData = array_map(function ($column, $param) {
                 return $column . '=' . $param;
             }, $columns, $parameters);
-            $sql = "UPDATE $table SET " . implode(',', $updateData); 
+            $sql = "UPDATE $table SET " . implode(',', $updateData);
         } else {
-            trigger_error("SQL type is not defined"); 
+            trigger_error("SQL type is not defined");
         }
         return  $sql;
     }
 }
-

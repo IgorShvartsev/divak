@@ -24,16 +24,16 @@ class Manager
     
     /**
     * Connect to DB with given driver
-    * Succesful connection is added to Pool 
+    * Succesful connection is added to Pool
     *
     * @param array $dbParams -  array DB credentials
     * @param string $connectName - connection name
-    * @param string $dbDriverName - default is PDO 
+    * @param string $dbDriverName - default is PDO
     */
     public function connect($dbParams, $connectName, $dbDriverName = null)
     {
         $params = [];
-        foreach(['adapter', 'database', 'host', 'user', 'password'] as $k) {
+        foreach (['adapter', 'database', 'host', 'user', 'password'] as $k) {
             if (isset($dbParams[$k])) {
                 $params[$k] = $dbParams[$k];
             } else {
@@ -42,7 +42,7 @@ class Manager
         }
         if (empty($connectName)) {
             throw new DbException('Connection name is empty');
-        } 
+        }
         if (empty($dbDriverName)) {
             $dbDriverName = $this->getDefaultDriver();
         }
@@ -54,10 +54,10 @@ class Manager
             $this->_disconnect($connectName);
         }
         $this->_pool[$connectName] = $this->$method(
-            $params['adapter'], 
-            $params['host'], 
-            $params['user'], 
-            $params['password'], 
+            $params['adapter'],
+            $params['host'],
+            $params['user'],
+            $params['password'],
             $params['database']
         );
     }
@@ -67,7 +67,7 @@ class Manager
     *
     * @param string $connectName
     */
-    public function disconnect($connectName) 
+    public function disconnect($connectName)
     {
         unset($this->_pool[$connectName]);
     }
@@ -87,7 +87,7 @@ class Manager
     }
     
     /**
-    * Trace Pool for debug purpose 
+    * Trace Pool for debug purpose
     */
     public function tracePool()
     {
@@ -121,7 +121,7 @@ class Manager
              new \PDO($adapter . ':dbname=' . $database . ';host=' . $host, $user, $password);
         $dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $query = "SET NAMES UTF8";
-        $dbh->exec($query); 
+        $dbh->exec($query);
         return new PdoDriver($dbh);
     }
 }

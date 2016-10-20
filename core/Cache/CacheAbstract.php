@@ -2,17 +2,17 @@
 namespace Cache;
 
 /**
-*  Cache abstract class
-*  
-*  @author Igor Shvartsev (igor.shvartsev@gmail.com)
-*  @package Divak
-*  @version 1.0
+* Cache abstract class
+*
+* @author Igor Shvartsev (igor.shvartsev@gmail.com)
+* @package Divak
+* @version 1.0
 */
 abstract class CacheAbstract
 {
     /**
     * Directives
-    * 
+    *
     * @var array
     */
     protected $_directives = array(
@@ -21,17 +21,17 @@ abstract class CacheAbstract
     );
     /**
     * Options
-    * 
+    *
     * @var array
     */
     protected $_options = array();
     
     /**
     * Constructor
-    * 
+    *
     * @param array $options
     */
-    public function __construct( $options = array() )
+    public function __construct($options = array())
     {
         while (list($name, $value) = each($options)) {
             $this->setOption($name, $value);
@@ -39,7 +39,7 @@ abstract class CacheAbstract
     }
     /**
     * set options
-    * 
+    *
     * @param string $name
     * @param mixed $value
     */
@@ -50,7 +50,7 @@ abstract class CacheAbstract
         }
         $name = strtolower($name);
         
-        if ( isset($this->_options) && array_key_exists($name, $this->_options)) {
+        if (isset($this->_options) && array_key_exists($name, $this->_options)) {
             $this->_options[$name] = $value;
         } else {
             return false;
@@ -60,12 +60,12 @@ abstract class CacheAbstract
 
     /**
     * Start cache helper
-    * 
+    *
     * @param mixed $id
     * @return string|false
     */
     public function start($id)
-    {   
+    {
         if ($out = $this->load($id)) {
             return $out;
         } else {
@@ -77,7 +77,7 @@ abstract class CacheAbstract
     
     /**
     * End cache helper
-    * 
+    *
     * @param mixed $id
     * @return string
     */
@@ -87,14 +87,23 @@ abstract class CacheAbstract
         return $out;
     }
     
-    public function load($id, $doNotTestCacheValidity = false){}
+    public function load($id, $doNotTestCacheValidity = false)
+    {
+    }
     
-    public function test($id){}
+    public function test($id)
+    {
+    }
     
-    public function save($data, $id){}
+    public function save($data, $id)
+    {
+    }
     
-    public function remove($id){}
+    public function remove($id)
+    {
+    }
     
-    public function clean(){}
-    
+    public function clean()
+    {
+    }
 }

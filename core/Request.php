@@ -10,13 +10,13 @@
 */
 class Request extends \Facade
 {	
-  /**
-  *  Returns object instance
-  *
-  *  @return Object
-  */
-  public static function getObjectInstance()
-  {
-    return \App::make(\Kernel\Http\Request::class);
-  }
+	/**
+  	* Returns object instance
+  	*
+  	* @return Object
+  	*/
+  	public static function getObjectInstance()
+  	{
+    	return \App::make(\Kernel\Http\Request::class);
+  	}
 }

@@ -17,18 +17,18 @@ class CacheDb extends CacheAbstract
     
     /**
     * Options
-    * 
+    *
     * @var mixed
     */
     protected $_options = array(
         'control_type'  => 'crc32',
         'table'         => 'cache',
-        'type'          => 'profile'     
+        'type'          => 'profile'
     );
     
     /**
     * Constructor
-    * 
+    *
     * @param array $_options
     */
     public function __construct($_options = array(), $logging = false)
@@ -38,12 +38,11 @@ class CacheDb extends CacheAbstract
         $this->directives['lifetime'] = isset($_options['lifetime']) ? $_options['lifetime'] : 3600;
         $this->directives['logging']  = $logging;
         
-        foreach($_options as $i => $v) {
+        foreach ($_options as $i => $v) {
             if (isset($this->options[$i])) {
                 $this->options[$i] = $v;
             }
         }
-        
     }
     
     public function load($id, $doNotTestCacheValidity = false)
@@ -63,14 +62,16 @@ class CacheDb extends CacheAbstract
         $r  = $this->_getKey($id);
 
         if ($r) {
-            return (time() - $r->datetime) <= $this->directives['lifetime']; 
+            return (time() - $r->datetime) <= $this->directives['lifetime'];
         }
         return false;
     }
     
     public function save($data, $id)
     {
-        if (!$this->dbConnection) return false;
+        if (!$this->dbConnection) {
+            return false;
+        }
         
         $id = $this->_hash($id, $this->_options['control_type']);
         $r  = $this->_getKey($id);
@@ -80,13 +81,15 @@ class CacheDb extends CacheAbstract
             $q->execute($data, $time, $id);
         } else {
             $q = new query("INSERT INTO {$this->_options['table']} SET `value` = ??, datetime = ??, type = ??, `key` = ??");
-            $q->execute($data, $time, $this->_options['type'], $id );
+            $q->execute($data, $time, $this->_options['type'], $id);
         }
     }
     
     public function remove($id)
     {
-        if (!$this->dbConnection) return false;
+        if (!$this->dbConnection) {
+            return false;
+        }
         
         $id = $this->_hash($id, $this->_options['control_type']);
         
@@ -97,7 +100,9 @@ class CacheDb extends CacheAbstract
     
     public function clean()
     {
-        if (!$this->dbConnection) return false;
+        if (!$this->dbConnection) {
+            return false;
+        }
         
         $q = new query("DELETE FROM {$this->_options['table']} WHERE `type` = ??");
         $q->execute($this->_options['type']);
@@ -143,17 +148,17 @@ class CacheDb extends CacheAbstract
     
     /**
     * Get DB key
-    * 
+    *
     * @param mixed $key
     */
     protected function _getKey($key)
     {
-        if (!$this->dbConnection) return false;
+        if (!$this->dbConnection) {
+            return false;
+        }
         
         $query = new query("SELECT * FROM {$this->_options['table']} WHERE `key` = ??");
         $query->execute($key);
         return $query->fetch();
     }
-    
-
 }

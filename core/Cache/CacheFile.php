@@ -5,18 +5,18 @@ namespace Cache;
 use \Cache\Exception\CacheFileException;
 
 /**
-*  File class
-* 
-*  @author Igor Shvartsev (igor.shvartsev@gmail.com)
-*  @package Divak
-*  @version 1.0
+* File class
+*
+* @author Igor Shvartsev (igor.shvartsev@gmail.com)
+* @package Divak
+* @version 1.0
 */
 class CacheFile extends CacheAbstract
 {
     
     /**
     * Options
-    * 
+    *
     * @var mixed
     */
     protected $_options = array(
@@ -28,7 +28,7 @@ class CacheFile extends CacheAbstract
     
     /**
     * Constructor
-    * 
+    *
     * @param array $_options
     */
     public function __construct($_options = array(), $logging = false)
@@ -36,10 +36,10 @@ class CacheFile extends CacheAbstract
         parent::__construct($_options);
         $this->_directives['lifetime'] = isset($_options['lifetime']) ? $_options['lifetime'] : 3600;
         $this->_directives['logging']  = $logging;
-        if ($this->_options['cache_dir'] !== null) { 
+        if ($this->_options['cache_dir'] !== null) {
             $this->setCacheDir($this->_options['cache_dir']);
         } else {
-            throw new CacheFileException('Cache directory not defined'); 
+            throw new CacheFileException('Cache directory not defined');
         }
     }
     
@@ -81,10 +81,12 @@ class CacheFile extends CacheAbstract
     {
         $id = $this->_hash($id, $this->_options['control_type']);
         $file = $this->_file($id);
-        if ( !file_exists($file) ) return false;
+        if (!file_exists($file)) {
+            return false;
+        }
         clearstatcache();
-        $lastModifiedTime = (int)(filemtime($file)/$this->_directives['lifetime']) * $this->_directives['lifetime']; 
-        return (time() - $lastModifiedTime) <= $this->_directives['lifetime']; 
+        $lastModifiedTime = (int)(filemtime($file)/$this->_directives['lifetime']) * $this->_directives['lifetime'];
+        return (time() - $lastModifiedTime) <= $this->_directives['lifetime'];
     }
     
     public function save($data, $id)
@@ -108,7 +110,7 @@ class CacheFile extends CacheAbstract
         if ($glob === false) {
             return true;
         }
-        foreach ($glob as $file)  {
+        foreach ($glob as $file) {
             if (is_file($file)) {
                 $fileName = basename($file);
                 $id = $this->_fileNameToId($fileName);
@@ -195,9 +197,13 @@ class CacheFile extends CacheAbstract
         }
         $f = @fopen($file, 'rb');
         if ($f) {
-            if ($this->_options['file_locking']) @flock($f, LOCK_SH);
+            if ($this->_options['file_locking']) {
+                @flock($f, LOCK_SH);
+            }
             $result = stream_get_contents($f);
-            if ($this->_options['file_locking']) @flock($f, LOCK_UN);
+            if ($this->_options['file_locking']) {
+                @flock($f, LOCK_UN);
+            }
             @fclose($f);
         }
         return $result;
@@ -215,11 +221,13 @@ class CacheFile extends CacheAbstract
         $result = false;
         $f = @fopen($file, 'ab+');
         if ($f) {
-            if ($this->_options['file_locking']) @flock($f, LOCK_EX);
+            if ($this->_options['file_locking']) {
+                @flock($f, LOCK_EX);
+            }
             fseek($f, 0);
             ftruncate($f, 0);
             $tmp = @fwrite($f, $string);
-            if (!($tmp === FALSE)) {
+            if (!($tmp === false)) {
                 $result = true;
             }
             @fclose($f);
@@ -242,7 +250,7 @@ class CacheFile extends CacheAbstract
     
     /**
     * Remove file
-    * 
+    *
     * @param mixed $id
     */
     protected function _remove($id)
@@ -252,7 +260,6 @@ class CacheFile extends CacheAbstract
             return false;
         }
         @unlink($file);
-        return true; 
+        return true;
     }
-    
 }

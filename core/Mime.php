@@ -2,19 +2,19 @@
 
 /**
 *  Mime types class
-* 
+*
 * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
 * @package Divak
 * @version 1.0
 */
 class Mime
 {
-    /**
-    * Mime types array
-    * 
-    * @var array
-    */
-    protected static $types = array(
+      /**
+      * Mime types array
+      *
+      * @var array
+      */
+      protected static $types = array(
             "3dm"       => "x-world/x-3dmf",
             "3dmf"      => "x-world/x-3dmf",
             "a"         => "application/octet-stream",
@@ -428,21 +428,23 @@ class Mime
             "zip"       => "application/x-compressed",
             "zoo"       => "application/octet-stream",
             "zsh"       => "text/x-script.zsh"
-    );
+      );
     
-    /**
-    * getType
-    * Gets corresponding mime type for the target file
-    * 
-    * @param string $file - it can be absolute path to the file or simple file name
-    * @param string $defaultType - if mime type not found default one will be returned
-    * @return string
-    */
-    public static function getType($file, $defaultType = 'html')
-    {
-        $file = basename($file);
-        $fileext = substr(strrchr($file, '.'), 1); 
-        if (empty($fileext)) return isset(self::$types[$defaultType]) ? self::$types[$defaultType] : false;
-        return isset(self::$types[$fileext]) ? self::$types[$fileext] : self::$types[$defaultType];
-    }
+      /**
+      * getType
+      * Gets corresponding mime type for the target file
+      *
+      * @param string $file - it can be absolute path to the file or simple file name
+      * @param string $defaultType - if mime type not found default one will be returned
+      * @return string
+      */
+      public static function getType($file, $defaultType = 'html')
+      {
+            $file = basename($file);
+            $fileext = substr(strrchr($file, '.'), 1);
+            if (empty($fileext)) {
+                  return isset(self::$types[$defaultType]) ? self::$types[$defaultType] : false;
+            }
+            return isset(self::$types[$fileext]) ? self::$types[$fileext] : self::$types[$defaultType];
+      }
 }

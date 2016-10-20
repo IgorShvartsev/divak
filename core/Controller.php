@@ -10,7 +10,7 @@
 class Controller
 {
     /** @var \View */
-    protected $view; 
+    protected $view;
 
     /** @var boolean */
     protected $buffering = true;
@@ -18,9 +18,9 @@ class Controller
     /**
     * Set options
     *
-    * @param array $options 
+    * @param array $options
     */
-    public function setOptions( $options = array() )
+    public function setOptions($options = array())
     {
         while (list($name, $value) = each($options)) {
             if (isset($this->$name) && is_string($name)) {
@@ -31,33 +31,33 @@ class Controller
 
     /**
     * Sets view object
-    * 
+    *
     * @param View $view
     */
     public function setView(\View $view = null)
     {
-        $this->view = $view; 
+        $this->view = $view;
     }
    
     /**
     * Gets view object
-    * 
+    *
     * @return \View
     */
     public function getView()
     {
-        return $this->view;   
+        return $this->view;
     }
    
     /**
     *  Renders view
-    * 
+    *
     *  @param array $data - template data
     *  @param string $template - template name
     *  @param bool $noController
     *  @param bool $return  - print or return  rendered result
     */
-    public function render($data = null, $template = null, $noController = false, $return = false) 
+    public function render($data = null, $template = null, $noController = false, $return = false)
     {
         if (is_array($data)) {
             $this->view->setData($data);
@@ -76,11 +76,11 @@ class Controller
    
     /**
     * Magic get
-    * 
+    *
     * @param string $var
     */
     public function __get($var)
     {
-        return $this->$var;   
+        return $this->$var;
     }
 }

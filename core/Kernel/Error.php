@@ -8,12 +8,16 @@ namespace Kernel;
 * @package Divak
 * @version 1.0
 */
-class Error {
-
+class Error
+{
     protected static $_handlers = array();
 
-    private function __construct() {}
-    private function __clone() {}
+    private function __construct()
+    {
+    }
+    private function __clone()
+    {
+    }
 
     /**
     *  Error Handler
@@ -24,10 +28,11 @@ class Error {
     * @param string $errline
     * @param string $errcontext
     */
-    public static function errorHandler($errno, $errstr, $errfile, $errline, $errcontext) {
+    public static function errorHandler($errno, $errstr, $errfile, $errline, $errcontext)
+    {
         $l = error_reporting();
-        if ( $l & $errno ) {
-            switch ( $errno ) {
+        if ($l & $errno) {
+            switch ($errno) {
                 case E_USER_ERROR:
                     $type = 'Fatal Error';
                     break;
@@ -60,25 +65,25 @@ class Error {
     * @param Exception $e
     * @return void
     */
-    public static function exceptionHandler(\Exception $e) 
+    public static function exceptionHandler(\Exception $e)
     {
         $log = $e->getMessage() . PHP_EOL . $e->getTraceAsString() . PHP_EOL;
             
-        if ( ini_get('log_errors') ) {
+        if (ini_get('log_errors')) {
             //error_log($log, 0);
         }
 
         if (count(static::$_handlers) > 0) {
-            foreach(static::$_handlers as $handleFunc) {
+            foreach (static::$_handlers as $handleFunc) {
                 call_user_func($handleFunc, $e);
             }
             exit();
         }
 
-        $description = sprintf("%s:%d\n%s\n[%s]\n%s\n", $e->getFile(), $e->getLine(), $e->getMessage(), get_class($e), $e->getTraceAsString() );
+        $description = sprintf("%s:%d\n%s\n[%s]\n%s\n", $e->getFile(), $e->getLine(), $e->getMessage(), get_class($e), $e->getTraceAsString());
         if (get_class($e) == 'Kernel\Exception\ResponseException') {
             \Response::responseCodeHeader($e->getCode());
-        } else if (get_class($e) == 'Kernel\Exception\KernelException' || get_class($e) == 'ErrorException') {
+        } elseif (get_class($e) == 'Kernel\Exception\KernelException' || get_class($e) == 'ErrorException') {
             \Response::responseCodeHeader(401);
         }
 

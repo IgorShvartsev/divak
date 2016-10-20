@@ -4,7 +4,7 @@ namespace Kernel\Http;
 
 /**
 * Response class
-* 
+*
 * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
 * @package Divak
 * @version 1.0
@@ -12,7 +12,7 @@ namespace Kernel\Http;
 class Response
 {
     /** @var \Response */
-	private static $_instance = null;
+    private static $_instance = null;
 
     /** @var array */
     protected $_cookies = [];
@@ -81,61 +81,65 @@ class Response
         508 => 'Loop Detected',
         511 => 'Network Authentication Required',
     ];
-	
+    
     /**
     * Get object instance
     *
     * @return \Response
     */
-	public static function getInstance()
+    public static function getInstance()
     {
         if (!self::$_instance) {
-           self::$_instance = new Response();
+            self::$_instance = new Response();
         }
         return self::$_instance;
     }
 
     /* RESSTRICT methods for making singleton */
-    private function __construct(){}
-    protected function __clone(){}
+    private function __construct()
+    {
+    }
+    protected function __clone()
+    {
+    }
 
     /**
     * Set response header with code
-    * 
+    *
     * @param int $code
     */
     public function responseCodeHeader($code)
     {
-       $sapi_name = php_sapi_name();
-       if (isset($this->_codes[$code])) {
+        $sapi_name = php_sapi_name();
+        if (isset($this->_codes[$code])) {
             if ($sapi_name == 'cgi' || $sapi_name == 'cgi-fcgi') {
                 header('Status: ' . $this->_codes[$code]);
             } else {
                 header($_SERVER['SERVER_PROTOCOL'] . ' ' . $code . ' ' . $this->_codes[$code]);
             }
-       }
+        }
     }
 
     /**
     * Get response code description
-    * 
+    *
     * @param int $code
     * @return string;
     */
-    public function getResponseCodeDescription($code) 
+    public function getResponseCodeDescription($code)
     {
         if (isset($this->_codes[$code])) {
             $description = trim(str_replace($code, '', $this->_codes[$code]));
-            return $description; 
+            return $description;
         }
         return '';
     }
 
     /**
     * Set header
-    *  
-    * @param string $key 
-    * @param string $value 
+    *
+    * @param string $key
+    * @param string $value
     */
     public function setHeader($key, $value)
     {
@@ -145,14 +149,14 @@ class Response
 
     /**
     * Get header entry
-    * 
+    *
     * @param string $key
     * @return string
     */
     public function getHeader($key)
     {
         $key = str_replace('_', '-', strtolower($key));
-        return array_key_exists($key, $this->_headers) ? $this->_headers[$key] : null; 
+        return array_key_exists($key, $this->_headers) ? $this->_headers[$key] : null;
     }
 
     /**
@@ -162,7 +166,7 @@ class Response
     */
     public function setHeaders($headers)
     {
-        foreach($headers as $key => $val) {
+        foreach ($headers as $key => $val) {
             $this->setHeader($key, $val);
         }
     }
@@ -186,12 +190,12 @@ class Response
     * @param string $path
     * @param string $domain
     * @param boolean $secure
-    * @param boolean $httponly 
+    * @param boolean $httponly
     */
     public function setCookie($name, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false)
     {
-       $data = compact('name', 'value', 'expire', 'path', 'domain', 'secure', 'httponly');
-       $this->_cookies[$data['name']] = $data;
+        $data = compact('name', 'value', 'expire', 'path', 'domain', 'secure', 'httponly');
+        $this->_cookies[$data['name']] = $data;
     }
 
     /**
@@ -206,7 +210,7 @@ class Response
 
     /**
     * Set rendered content into response body
-    * 
+    *
     * @param string $content
     */
     public function setBody($content)
@@ -238,7 +242,7 @@ class Response
 
     /**
     * Redirects
-    * 
+    *
     * @param string $url
     */
     public function redirect($url)

@@ -3,13 +3,13 @@ namespace Kernel\Http;
 
 /**
 * Request class
-* 
+*
 * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
 * @package Divak
 * @version 1.0
 */
 class Request
-{	
+{
     /** REQUEST TYPES */
     const HTTP_TYPE_GET      = 1;
     const HTTP_TYPE_POST     = 2;
@@ -19,8 +19,8 @@ class Request
     const HTTP_TYPE_PARAMS   = 6;
 
     /** @var \Request */
-	private static $_instance = null;
-    /** @var [] */ 
+    private static $_instance = null;
+    /** @var [] */
     private $_headers = [];
     /** @var [] */
     protected $_post = [];
@@ -38,8 +38,12 @@ class Request
     protected $_httpMethod;
 
     /* RESSTRICT methods for making singleton */
-    private function __construct(){}
-    protected function __clone(){}
+    private function __construct()
+    {
+    }
+    protected function __clone()
+    {
+    }
    
     /**
     * Get array of json params
@@ -53,14 +57,14 @@ class Request
 
     /**
     * Gets cookie param
-    * 
+    *
     * @param string $name
     * @param string $default
     * @return mixed
     */
     public function getCookie($name, $default = null)
     {
-        return isset($this->_cookie[$name]) ? $this->_cookie[$name] : $default; 
+        return isset($this->_cookie[$name]) ? $this->_cookie[$name] : $default;
     }
 
     /**
@@ -86,14 +90,14 @@ class Request
 
     /**
     * Gets param from $_REQUEST
-    * 
+    *
     * @param string $name
     * @param string $default
     * @return mixed
     */
     public function getFromRequest($name, $default = null)
     {
-        return isset($this->_request[$name]) ? $this->_request[$name] : $default; 
+        return isset($this->_request[$name]) ? $this->_request[$name] : $default;
     }
 
     /**
@@ -110,15 +114,15 @@ class Request
     }
 
     /**
-    * Gets JSON param 
-    * 
+    * Gets JSON param
+    *
     * @param string $name
     * @param string $default
     * @return mixed
     */
     public function getJson($name, $default = null)
     {
-        return isset($this->_json[$name]) ? $this->_json[$name] : $default; 
+        return isset($this->_json[$name]) ? $this->_json[$name] : $default;
     }
 
     /**
@@ -133,54 +137,54 @@ class Request
    
     /**
     * Gets GET param
-    * 
+    *
     * @param string $name
     * @param string $default
     * @return mixed
     */
     public function getQuery($name, $default = null)
     {
-        return isset($this->_get[$name]) ? $this->_get[$name] : $default; 
+        return isset($this->_get[$name]) ? $this->_get[$name] : $default;
     }
    
     /**
     * Gets param
-    * 
+    *
     * @param string $name
     * @param string $default
     * @return mixed
     */
     public function getParam($name, $default = null)
     {
-        return isset($this->_params[$name]) ? $this->_params[$name] : $default; 
+        return isset($this->_params[$name]) ? $this->_params[$name] : $default;
     }
 
     /**
-    * Get all GET parameters 
+    * Get all GET parameters
     *
-    * @return array 
+    * @return array
     */
-    public function getQueryParams() 
+    public function getQueryParams()
     {
         return $this->_get;
     }
 
     /**
-    * Get all POST parameters 
+    * Get all POST parameters
     *
-    * @return array 
+    * @return array
     */
-    public function getPostParams() 
+    public function getPostParams()
     {
         return $this->_post;
     }
 
     /**
-    * Get all JSON parameters 
+    * Get all JSON parameters
     *
-    * @return array 
+    * @return array
     */
-    public function getJsonParams() 
+    public function getJsonParams()
     {
         return $this->_json;
     }
@@ -188,23 +192,23 @@ class Request
     /**
     * Get all parameters
     *
-    * @return array 
+    * @return array
     */
-    public function getParams() 
+    public function getParams()
     {
         return $this->_params;
     }
 
     /**
     * Gets POST param
-    * 
+    *
     * @param string $name
     * @param string $default
     * @return mixed
     */
     public function getPost($name, $default = null)
     {
-        return isset($this->_post[$name]) ? $this->_post[$name] : $default; 
+        return isset($this->_post[$name]) ? $this->_post[$name] : $default;
     }
 
     /**
@@ -215,32 +219,32 @@ class Request
     */
     public function headerExists($headerName)
     {
-        return array_key_exists($headerName, $this->_headers); 
+        return array_key_exists($headerName, $this->_headers);
     }
 
     /**
     * Checks if request is GET
-    * 
+    *
     * @return boolean
     */
     public function isGet()
     {
-        return $this->getMethod() == 'GET';  
+        return $this->getMethod() == 'GET';
     }
    
     /**
     * Checks if request is POST
-    * 
+    *
     * @return boolen
     */
     public function isPost()
     {
-        return $this->getMethod() == 'POST';   
+        return $this->getMethod() == 'POST';
     }
     
     /**
     * Checks if request is XmlHttp
-    * 
+    *
     * @return boolean
     */
     public function isXmlHttpRequest()
@@ -250,12 +254,12 @@ class Request
 
     /**
     * Set data for specific request type
-    * 
+    *
     * @return void
     */
     public function set($data, $type)
-    {    
-      switch($type) {
+    {
+        switch ($type) {
         case self::HTTP_TYPE_GET:
             $this->_get = (array)$data;
             break;
@@ -277,26 +281,25 @@ class Request
         default:
             throw new \Exception('Request type is unknown');
       }
-   }
+    }
 
-   /**
-   * Set headers
-   *
-   * @param array $headers
-   */
-   public function setHeaders($headers)
-   {
+    /**
+    * Set headers
+    *
+    * @param array $headers
+    */
+    public function setHeaders($headers)
+    {
         $this->_headers = $headers;
-   }
+    }
 
-   /**
-   * Set HTTP method
-   *
-   * @param string $httpMethod
-   */
-   public function setMethod($httpMethod)
-   {
+    /**
+    * Set HTTP method
+    *
+    * @param string $httpMethod
+    */
+    public function setMethod($httpMethod)
+    {
         $this->_httpMethod = $httpMethod;
-   }
-
+    }
 }

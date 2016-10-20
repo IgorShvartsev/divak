@@ -2,7 +2,7 @@
 
 /**
 *  Validation class
-* 
+*
 * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
 * @package Divak
 * @version 1.0
@@ -13,16 +13,16 @@ class Validation
      * Minimum Length
      *
      * @param  string $str
-     * @param  value  $val 
+     * @param  value  $val
      * @return bool
-     */    
+     */
     public static function minLength($str, $val)
     {
         if (preg_match("/[^0-9]/", $val)) {
             return false;
         }
         if (function_exists('mb_strlen')) {
-            return mb_strlen($str) > $val         
+            return mb_strlen($str) > $val;
         }
         return strlen($str) > $val;
     }
@@ -33,32 +33,32 @@ class Validation
      * @param  string $str
      * @param  value  $val
      * @return bool
-     */    
+     */
     public static function maxLength($str, $val)
     {
-        if (preg_match("/[^0-9]/", $val)){
+        if (preg_match("/[^0-9]/", $val)) {
             return false;
         }
         if (function_exists('mb_strlen')) {
-            return mb_strlen($str) < $val;        
+            return mb_strlen($str) < $val;
         }
-        return strlen($str) < $val);
+        return strlen($str) < $val;
     }
     
     /**
      * Exact Length
      *
      * @param  string $str
-     * @param  value  $val 
+     * @param  value  $val
      * @return bool
-     */    
+     */
     public static function exactLength($str, $val)
     {
         if (preg_match("/[^0-9]/", $val)) {
             return false;
         }
         if (function_exists('mb_strlen')) {
-            return mb_strlen($str) == $val;        
+            return mb_strlen($str) == $val;
         }
         return strlen($str) == $val;
     }
@@ -68,7 +68,7 @@ class Validation
      *
      * @param  string $str
      * @return bool
-     */    
+     */
     public static function validEmail($str)
     {
         return preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", $str);
@@ -79,13 +79,13 @@ class Validation
      *
      * @param   string $str - emails separated by comma
      * @return  bool
-     */    
+     */
     public static function validEmails($str)
     {
         if (strpos($str, ',') === false) {
             return static::validEmail(trim($str));
         }
-        foreach(explode(',', $str) as $email) {
+        foreach (explode(',', $str) as $email) {
             if (trim($email) != '' && !static::validEmail(trim($email))) {
                 return false;
             }
@@ -98,7 +98,7 @@ class Validation
      *
      * @param  string $str
      * @return bool
-     */        
+     */
     public static function alpha($str)
     {
         return (bool)preg_match("/^([a-z])+$/i", $str);
@@ -109,7 +109,7 @@ class Validation
      *
      * @param  string $str
      * @return bool
-     */    
+     */
     public static function alphaNumeric($str)
     {
         return (bool)preg_match("/^([a-z0-9])+$/i", $str);
@@ -120,7 +120,7 @@ class Validation
      *
      * @param  string $str
      * @return bool
-     */    
+     */
     public static function alphaDash($str)
     {
         return (bool)preg_match("/^([^!@#$%&*()<>{}\[\]|?`~\/№\";:,])+$/iu", $str);
@@ -131,11 +131,10 @@ class Validation
      *
      * @param  string $str
      * @return bool
-     */    
+     */
     public static function numeric($str)
     {
-        return (bool)preg_match( '/^[\-+]?[0-9]*\.?[0-9]+$/', $str);
-
+        return (bool)preg_match('/^[\-+]?[0-9]*\.?[0-9]+$/', $str);
     }
 
     /**
@@ -147,17 +146,17 @@ class Validation
     public static function isNumeric($str)
     {
         return is_numeric($str);
-    } 
+    }
     
     /**
      * Integer
      *
      * @param  string $str
      * @return bool
-     */    
+     */
     public static function integer($str)
     {
-        return (bool)preg_match( '/^[\-+]?[0-9]+$/', $str);
+        return (bool)preg_match('/^[\-+]?[0-9]+$/', $str);
     }
 
     /**
@@ -167,8 +166,8 @@ class Validation
      * @return bool
      */
     public static function isNatural($str)
-    {   
-        return (bool)preg_match( '/^[0-9]+$/', $str);
+    {
+        return (bool)preg_match('/^[0-9]+$/', $str);
     }
 
     /**
@@ -178,8 +177,8 @@ class Validation
      * @return bool
      */
     public static function isNaturalNoZero($str)
-    {   
-        if ( ! preg_match( '/^[0-9]+$/', $str)) {
+    {
+        if (! preg_match('/^[0-9]+$/', $str)) {
             return false;
         }
         if ($str == 0) {
@@ -204,28 +203,33 @@ class Validation
     
     /**
     * Valid words
-    * 
+    *
     * @param string $str
     * @param string $vMethod
     * @param mixed  $val
     * @return bool
     */
-    public static unction isWords($str, $vMethod='alphaDash', $val='')
+    public static function isWords($str, $vMethod='alphaDash', $val='')
     {
         $ok = true;
-        $arr = explode(' ',$str);
-        foreach($arr as $word)
-        {
-            if (empty($word)) continue;
-            if (!method_exists('Validation', $vMethod)) throw new Exception('Validation method is undefined. Look Validation.class for correct method');
-            if ($vMethod=='minLegth' || $vMethod=='maxLength' || $vMethod=='exactLength'){
-                if (!self::$vMethod($word,$val)) $ok = false;
+        $arr = explode(' ', $str);
+        foreach ($arr as $word) {
+            if (empty($word)) {
+                continue;
+            }
+            if (!method_exists('Validation', $vMethod)) {
+                throw new Exception('Validation method is undefined. Look Validation.class for correct method');
+            }
+            if ($vMethod=='minLegth' || $vMethod=='maxLength' || $vMethod=='exactLength') {
+                if (!self::$vMethod($word, $val)) {
+                    $ok = false;
+                }
             } else {
-                if (!self::$vMethod($word)) $ok = false;
+                if (!self::$vMethod($word)) {
+                    $ok = false;
+                }
             }
         }
         return $ok;
     }
-
 }
-  

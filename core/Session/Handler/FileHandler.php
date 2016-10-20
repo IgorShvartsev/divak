@@ -24,7 +24,6 @@ class FileHandler implements \SessionHandlerInterface
     */
     public function __construct($options)
     {
-
     }
 
     /**
@@ -53,7 +52,7 @@ class FileHandler implements \SessionHandlerInterface
 
     /**
     * Read session data
-    * Must be returned as string. Inner PHP engine that unserialize this string 
+    * Must be returned as string. Inner PHP engine that unserialize this string
     *
     * @param string $id
     * @return string

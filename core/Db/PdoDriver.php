@@ -3,14 +3,14 @@
 namespace Db;
 
 /**
-*  Pdo adapter class
+* Pdo adapter class
 *
 * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
 * @package Divak
 * @version 1.0
 */
 class PdoDriver extends \Db\DbAbstract
-{ 
+{
     
     /**
     * PDO Statement
@@ -39,7 +39,7 @@ class PdoDriver extends \Db\DbAbstract
     
     /**
     * query
-    * 
+    *
     * @param string $query
     */
     public function query($query)
@@ -51,7 +51,7 @@ class PdoDriver extends \Db\DbAbstract
     
     /**
     * fetch
-    * 
+    *
     * @param mixed $params
     * @param numeric $mode - returned values 0 - assoc array, 1 - object
     * @return object|array
@@ -59,11 +59,11 @@ class PdoDriver extends \Db\DbAbstract
     public function fetch($params = array(), $mode = 0)
     {
         $mode = $mode ? \PDO::FETCH_OBJ : \PDO::FETCH_ASSOC;
-        if ( !($this->_sth instanceof \PDOStatement) ) {
+        if (!($this->_sth instanceof \PDOStatement)) {
             trigger_error("Query should be created before calling fetch method");
             return false;
         }
-        $this->_sth->setFetchMode(\PDO::FETCH_ASSOC);  
+        $this->_sth->setFetchMode(\PDO::FETCH_ASSOC);
         $this->_sth->execute($params);
         $data = $this->_sth->fetch($mode);
         $this->_sth->closeCursor();
@@ -72,7 +72,7 @@ class PdoDriver extends \Db\DbAbstract
     
     /**
     * fetchAll
-    * 
+    *
     * @param mixed $params
     * @param numeric $mode - returned values 0 - assoc array, 1 - object
     * @return object|array
@@ -80,10 +80,10 @@ class PdoDriver extends \Db\DbAbstract
     public function fetchAll($params = array(), $mode = 0)
     {
         $mode = $mode ? \PDO::FETCH_OBJ : \PDO::FETCH_ASSOC;
-        if ( !($this->_sth instanceof \PDOStatement) ) {
+        if (!($this->_sth instanceof \PDOStatement)) {
             trigger_error("Query should be created before calling fetchAll method");
             return false;
-        }  
+        }
         $this->_sth->execute($params);
         $data = $this->_sth->fetchAll($mode);
         $this->_sth->closeCursor();
@@ -96,7 +96,7 @@ class PdoDriver extends \Db\DbAbstract
     */
     public function execute($params = array())
     {
-        if ( !($this->_sth instanceof \PDOStatement) ) {
+        if (!($this->_sth instanceof \PDOStatement)) {
             trigger_error("Query should be created before calling execute method");
             return false;
         }
@@ -110,9 +110,9 @@ class PdoDriver extends \Db\DbAbstract
     *
     * @return  PDOStatement
     */
-    public function getStatementObject() 
+    public function getStatementObject()
     {
-        if ( !($this->_sth instanceof \PDOStatement) ) {
+        if (!($this->_sth instanceof \PDOStatement)) {
             trigger_error("Query should be created before calling getStatementObject");
             return false;
         }
@@ -132,11 +132,11 @@ class PdoDriver extends \Db\DbAbstract
     
     /**
     * Quotes target value
-    * 
+    *
     * @param string|int $value
-    * @return string|int  
+    * @return string|int
     */
-    public function quote($value) 
+    public function quote($value)
     {
         return is_int($value) ? $value : $this->_dbh->quote($value);
     }
@@ -146,10 +146,10 @@ class PdoDriver extends \Db\DbAbstract
     *
     * @return last insertId
     */
-    public function getLastInsertId() 
+    public function getLastInsertId()
     {
         return $this->_dbh->lastInsertId();
-    } 
+    }
     
     /**
     * getLastQuery

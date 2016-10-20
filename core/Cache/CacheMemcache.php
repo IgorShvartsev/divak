@@ -5,11 +5,11 @@ namespace Cache;
 use \Cache\Exception\CacheMemcacheException;
 
 /**
-*  Cache Memcache class
+* Cache Memcache class
 *
-*  @author Igor Shvartsev (igor.shvartsev@gmail.com)
-*  @package Divak
-*  @version 1.0
+* @author Igor Shvartsev (igor.shvartsev@gmail.com)
+* @package Divak
+* @version 1.0
 */
 class CacheMemcache extends CacheAbstract
 {
@@ -135,6 +135,4 @@ class CacheMemcache extends CacheAbstract
 
         return $this->_memcache->get($key);
     }
-
-
 }

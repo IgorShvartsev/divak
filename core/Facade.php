@@ -10,15 +10,15 @@
 */
 class Facade
 {
-	/**
-	*  Returns object instance
-	*
-	*  @return Object
-	*/
-	public static function getObjectInstance()
-	{
-		throw new \RuntimeException('Facade doesn\'t implement getObjectInstance method');
-	}
+    /**
+    * Returns object instance
+    *
+    * @return Object
+    */
+    public static function getObjectInstance()
+    {
+        throw new \RuntimeException('Facade doesn\'t implement getObjectInstance method');
+    }
 
     /**
     * Static calls to object
@@ -28,7 +28,7 @@ class Facade
     * @return mixed
     */
     public static function __callStatic($method, $args)
-    {    
+    {
         $instance = static::getObjectInstance();
         return call_user_func_array(array($instance, $method), $args);
     }
