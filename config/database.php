@@ -11,7 +11,7 @@ return [
     * and name differently instead of example "connect_1", ...
     */ 
     'connect_1' => [
-		'adapter'  => 'mysql',  
+        'adapter'  => 'mysql',  
     	'database' => 'xxxxx',
     	'host'     => 'localhost',
     	'user'     => 'xxxxx',
