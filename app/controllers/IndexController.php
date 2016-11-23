@@ -24,7 +24,7 @@ class IndexController extends \Controller
     public function index()
     {	
         $data = [];
-   		$this->render($data);
+        $this->render($data);
     }
    
     /**
