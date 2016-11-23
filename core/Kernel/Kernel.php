@@ -67,7 +67,12 @@ class Kernel extends Container
         $this->_dispatch();
     }
 
-
+    /**
+    * Initialize Session
+    *
+    * @param Session $session
+    * @param [] $config
+    */
     protected function _initSession(\Session $session, $config)
     {
         \Session\SessionManager::setHandler($config['type']);
@@ -83,7 +88,10 @@ class Kernel extends Container
         }
         $session->start($config['name']);
     }
-
+    
+    /**
+    * Initialize Database connection
+    */
     protected function _initDBConnection()
     {
         $config = \Config::get('database');
@@ -97,7 +105,10 @@ class Kernel extends Container
         $dbParams = $config[$config['default']];
         $dbManager->connect($dbParams, $config['default']);
     }
-
+    
+    /**
+    * Bind core classes into service container
+    */
     protected function _bindCoreClasses()
     {
         $coreClasses = [
