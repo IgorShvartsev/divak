@@ -231,7 +231,7 @@ class Kernel extends Container
             return array_map(array($this, '_tidyInput'), $input);
         } elseif (is_string($input)) {
             // xss clean
-            $non_displayables[] = '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/S';    // 00-08, 11, 12, 14-31, 127
+            $non_displayables[] = '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/';    // 00-08, 11, 12, 14-31, 127
             do {
                 $str = preg_replace($non_displayables, '', $input, -1, $count);
             } while ($count);
