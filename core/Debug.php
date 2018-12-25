@@ -15,7 +15,7 @@ class Debug
     public static function trace($var)
     {
         if (is_array($var) || is_object($var)) {
-            echo '<pre>'.print_r($var, true).'</pre>';
+            echo '<pre>' . print_r($var, true) . '</pre>';
         } else {
             echo $var;
         }

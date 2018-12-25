@@ -16,7 +16,7 @@ class PdoDriver extends \Db\DbAbstract
     * PDO Statement
     * @var object
     */
-    protected $_sth;
+    protected $sth;
     
     
     /**
@@ -34,7 +34,7 @@ class PdoDriver extends \Db\DbAbstract
     */
     public function getPdo()
     {
-        return $this->_dbh;
+        return $this->dbh;
     }
     
     /**
@@ -44,8 +44,9 @@ class PdoDriver extends \Db\DbAbstract
     */
     public function query($query)
     {
-        $this->_sth = $this->_dbh->prepare($query);
-        $this->_lastquery = $query;
+        $this->sth = $this->dbh->prepare($query);
+        $this->lastquery = $query;
+
         return $this;
     }
     
@@ -53,20 +54,21 @@ class PdoDriver extends \Db\DbAbstract
     * fetch
     *
     * @param mixed $params
-    * @param numeric $mode - returned values 0 - assoc array, 1 - object
+    * @param numeric $mode returned values 0 - assoc array, 1 - object
     * @return object|array
     */
-    public function fetch($params = array(), $mode = 0)
+    public function fetch($params = [], $mode = 0)
     {
         $mode = $mode ? \PDO::FETCH_OBJ : \PDO::FETCH_ASSOC;
-        if (!($this->_sth instanceof \PDOStatement)) {
+        if (!($this->sth instanceof \PDOStatement)) {
             trigger_error("Query should be created before calling fetch method");
             return false;
         }
-        $this->_sth->setFetchMode(\PDO::FETCH_ASSOC);
-        $this->_sth->execute($params);
-        $data = $this->_sth->fetch($mode);
-        $this->_sth->closeCursor();
+        $this->sth->setFetchMode(\PDO::FETCH_ASSOC);
+        $this->sth->execute($params);
+        $data = $this->sth->fetch($mode);
+        $this->sth->closeCursor();
+
         return $data;
     }
     
@@ -74,19 +76,20 @@ class PdoDriver extends \Db\DbAbstract
     * fetchAll
     *
     * @param mixed $params
-    * @param numeric $mode - returned values 0 - assoc array, 1 - object
+    * @param numeric $mode returned values 0 - assoc array, 1 - object
     * @return object|array
     */
-    public function fetchAll($params = array(), $mode = 0)
+    public function fetchAll($params = [], $mode = 0)
     {
         $mode = $mode ? \PDO::FETCH_OBJ : \PDO::FETCH_ASSOC;
-        if (!($this->_sth instanceof \PDOStatement)) {
+        if (!($this->sth instanceof \PDOStatement)) {
             trigger_error("Query should be created before calling fetchAll method");
             return false;
         }
-        $this->_sth->execute($params);
-        $data = $this->_sth->fetchAll($mode);
-        $this->_sth->closeCursor();
+        $this->sth->execute($params);
+        $data = $this->sth->fetchAll($mode);
+        $this->sth->closeCursor();
+
         return $data;
     }
     
@@ -94,14 +97,15 @@ class PdoDriver extends \Db\DbAbstract
     * execute
     * @param array $params
     */
-    public function execute($params = array())
+    public function execute($params = [])
     {
-        if (!($this->_sth instanceof \PDOStatement)) {
+        if (!($this->sth instanceof \PDOStatement)) {
             trigger_error("Query should be created before calling execute method");
             return false;
         }
 
-        $this->_sth->execute($params);
+        $this->sth->execute($params);
+
         return $this;
     }
     
@@ -112,11 +116,12 @@ class PdoDriver extends \Db\DbAbstract
     */
     public function getStatementObject()
     {
-        if (!($this->_sth instanceof \PDOStatement)) {
+        if (!($this->sth instanceof \PDOStatement)) {
             trigger_error("Query should be created before calling getStatementObject");
             return false;
         }
-        return $this->_sth;
+
+        return $this->sth;
     }
     
     /**
@@ -126,7 +131,8 @@ class PdoDriver extends \Db\DbAbstract
     */
     public function setStatementObject(\PDOStatement $sth)
     {
-        $this->_sth = $sth;
+        $this->sth = $sth;
+
         return $this;
     }
     
@@ -138,7 +144,7 @@ class PdoDriver extends \Db\DbAbstract
     */
     public function quote($value)
     {
-        return is_int($value) ? $value : $this->_dbh->quote($value);
+        return is_int($value) ? $value : $this->dbh->quote($value);
     }
     
     /**
@@ -148,7 +154,7 @@ class PdoDriver extends \Db\DbAbstract
     */
     public function getLastInsertId()
     {
-        return $this->_dbh->lastInsertId();
+        return $this->dbh->lastInsertId();
     }
     
     /**
@@ -157,6 +163,6 @@ class PdoDriver extends \Db\DbAbstract
     */
     public function getLastQuery()
     {
-        return $this->_lastquery;
+        return $this->lastquery;
     }
 }

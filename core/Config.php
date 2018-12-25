@@ -9,9 +9,9 @@
 */
 class Config
 {
-    protected static $_confDir = '/../config';
+    protected static $confDir = '/../config';
 
-    protected static $_confData = [];
+    protected static $confData = [];
 
     /**
     * Initialize data collection from files inside configuration directory
@@ -20,13 +20,13 @@ class Config
     */
     public static function init()
     {
-        self::$_confData = [];
-        $confDir = dirname(__FILE__) . self::$_confDir;
+        self::$confData = [];
+        $confDir = dirname(__FILE__) . self::$confDir;
         if (is_dir($confDir)) {
             $dir = dir($confDir);
             while (false !== ($entry = $dir->read())) {
                 $entryPath = rtrim($confDir, '/') . '/' . $entry;
-                if ($entry == '.' || $entry == '..') {
+                if ($entry === '.' || $entry === '..') {
                     continue;
                 }
                 if (is_dir($entryPath)) {
@@ -38,7 +38,7 @@ class Config
                     if (!is_array($data)) {
                         throw new \Exception('Data is not an array type in ' . $entryPath);
                     }
-                    self::$_confData[$key] = $data;
+                    self::$confData[$key] = $data;
                 }
             }
         } else {
@@ -59,10 +59,10 @@ class Config
         $isFirst = false;
         foreach ($arr as $subKey) {
             if (!$isFirst) {
-                if (!isset(self::$_confData[$subKey])) {
+                if (!isset(self::$confData[$subKey])) {
                     throw new \Exception('Key not found in config ' . $key);
                 }
-                $curKey = self::$_confData[$subKey];
+                $curKey = self::$confData[$subKey];
                 $isFirst = true;
                 continue;
             }
@@ -71,6 +71,7 @@ class Config
             }
             $curKey = $curKey[$subKey];
         }
+        
         return $curKey;
     }
 }

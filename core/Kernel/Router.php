@@ -1,5 +1,4 @@
 <?php
-
 namespace Kernel;
 
 use \Kernel\Exception\RouteException;
@@ -47,7 +46,7 @@ class Router
     *
     * @var string
     */
-    protected $_controllerPath = '';
+    protected $controllerPath = '';
     
     
     /**
@@ -55,21 +54,21 @@ class Router
     *
     * @var string
     */
-    protected $_baseUrl = '';
+    protected $baseUrl = '';
 
     /**
     * HTTP method (GET, POST, PUT, DELETE)
     *
     * @var string
     */
-    protected $_httpMethod;
+    protected $httpMethod;
 
     /**
     * Middleware tag array that should be applied to the given route
     *
     * @var string
     */
-    protected $_middlewareTags = [];
+    protected $middlewareTags = [];
 
     /**
     * Cache used for the given route
@@ -77,7 +76,7 @@ class Router
     *
     * @var array
     */
-    protected $_cacheSettings = [
+    protected $cacheSettings = [
         'enable' => false,
         'lifetime' => 3600
     ];
@@ -89,10 +88,11 @@ class Router
     public function __construct()
     {
         if (!empty(\Config::get('app.base_url'))) {
-            $baseUrl =  '/'.trim(\Config::get('app.base_url'), '/');
-            $this->_baseUrl = $baseUrl == '/' ? '' : $baseUrl;
+            $baseUrl =  '/' . trim(\Config::get('app.base_url'), '/');
+            $this->baseUrl = $baseUrl == '/' ? '' : $baseUrl;
         }
-        $this->_controllerPath = APP_PATH . '/controllers/';
+
+        $this->controllerPath = APP_PATH . '/controllers/';
     }
     
     /**
@@ -105,16 +105,20 @@ class Router
     {
         // default param
         $action  = '';
-        $pattern = str_replace(array('/', '.', ',', ';'), array('\\/', '\\.', '\\,', '\\;'), $this->_baseUrl);
-        $uri = preg_replace('$'.$pattern.'$i', '', $uri);
+        $pattern = str_replace(
+            ['/', '.', ',', ';'], 
+            ['\\/', '\\.', '\\,', '\\;'], 
+            $this->baseUrl
+        );
+        $uri = preg_replace('$' . $pattern . '$i', '', $uri);
         $uri = preg_replace('/\?.*$/', '', $uri);
         $uri = trim($uri, '/');
 
         // extract lang param
-        if (($pos = strpos($uri, '/')) !== false && $pos == 2) {
+        if (($pos = strpos($uri, '/')) !== false && $pos === 2) {
             $this->params['lang'] = strtolower(substr($uri, 0, $pos));
             $uri = substr($uri, $pos + 1);
-        } elseif (strlen($uri) == 2) {
+        } elseif (strlen($uri) === 2) {
             $this->params['lang'] = strtolower($uri);
             $uri = '';
         } else {
@@ -127,7 +131,7 @@ class Router
         foreach ($routes as $key => $val) {
             $key = str_replace(':any', '.+', str_replace(':num', '[0-9]+', $key));
  
-            if (preg_match('#^'.$key.'$#', $uri)) {
+            if (preg_match('#^' . $key . '$#', $uri)) {
                 if (is_array($val)) {
                     foreach ($val as $httpMethod => $data) {
                         if (is_array($data)) {
@@ -141,22 +145,29 @@ class Router
                             if (array_key_exists('middleware', $data)) {
                                 $isConditionAvailable = false;
                                 foreach (['before', 'after'] as $mdlCondition) {
-                                    if (is_array($data['middleware']) && array_key_exists($mdlCondition, $data['middleware'])) {
+                                    if (
+                                        is_array($data['middleware']) 
+                                        && array_key_exists($mdlCondition, $data['middleware'])
+                                    ) {
                                         if (!empty($data['middleware'][$mdlCondition])) {
-                                            $this->_middlewareTags[$mdlCondition] = $this->_normalizeMiddlewareTags($data['middleware'][$mdlCondition]);
+                                            $this->middlewareTags[$mdlCondition] = $this->normalizeMiddlewareTags(
+                                                $data['middleware'][$mdlCondition]
+                                            );
                                         }
                                         $isConditionAvailable = true;
                                     }
                                 }
                                 if (!$isConditionAvailable && !empty($data['middleware'])) {
-                                    $this->_middlewareTags = $this->_normalizeMiddlewareTags($data['middleware']);
+                                    $this->middlewareTags = $this->normalizeMiddlewareTags(
+                                        $data['middleware']
+                                    );
                                 }
                             }
                             // check if there is cache settings for the given route
                             if (array_key_exists('cache', $data) && is_array($data['cache'])) {
                                 foreach ($data['cache'] as $key => $v) {
-                                    if (isset($this->_cacheSettings[$key])) {
-                                        $this->_cacheSettings[$key] = $v;
+                                    if (isset($this->cacheSettings[$key])) {
+                                        $this->cacheSettings[$key] = $v;
                                     }
                                 }
                             }
@@ -166,15 +177,15 @@ class Router
                         }
                         
                         $httpMethod = strtoupper($httpMethod);
-                        $this->_httpMethod = $httpMethod;
-                        if (strtoupper($httpRequestMethod) == $httpMethod) {
+                        $this->httpMethod = $httpMethod;
+                        if (strtoupper($httpRequestMethod) === $httpMethod) {
                             break;
                         }
                     }
                 }
 
                 if (strpos($val, '$') !== false && strpos($key, '(') !== false) {
-                    $val = preg_replace('#^'.$key.'$#', $val, $uri);
+                    $val = preg_replace('#^' . $key . '$#', $val, $uri);
                 }
                 $uri = $val;
                 $isFoundRoute = true;
@@ -192,7 +203,7 @@ class Router
         if (count($uriElements) > 0) {
             $controller = array_shift($uriElements);
             $controller = ucfirst(strtolower($controller));
-            if (is_dir($this->_controllerPath.$controller)) {
+            if (is_dir($this->controllerPath . $controller)) {
                 if (count($uriElements) > 0) {
                     $this->controller = $controller . '\\' . ucfirst(array_shift($uriElements)) .'Controller';
                 } else {
@@ -200,8 +211,8 @@ class Router
                 }
                 $this->module = $controller;
             } else {
-                $this->controller = $controller.'Controller';
-                if (!file_exists($this->_controllerPath.$this->controller.'.php')) {
+                $this->controller = $controller . 'Controller';
+                if (!file_exists($this->controllerPath.$this->controller . '.php')) {
                     $this->controller = 'IndexController';
                     $action = $controller;
                 }
@@ -225,14 +236,16 @@ class Router
 
                 $i = 1;
                 while (count($uriElements) > 0) {
-                    $this->params['param'.$i] = array_shift($uriElements);
+                    $this->params['param' . $i] = array_shift($uriElements);
                     $i++;
                 }
             } else {
                 $this->params['page'] = 'index';
             }
         }
-        $this->params['pageid']  = md5($this->params['lang'] . $this->controller . $this->action . $this->params['page']);
+        $this->params['pageid']  = md5(
+            $this->params['lang'] . $this->controller . $this->action . $this->params['page']
+        );
         
         return true;
     }
@@ -244,7 +257,7 @@ class Router
     */
     public function getBaseUrl()
     {
-        return $this->_baseUrl;
+        return $this->baseUrl;
     }
 
     /**
@@ -254,7 +267,7 @@ class Router
     */
     public function getMiddlewareTags()
     {
-        return $this->_middlewareTags;
+        return $this->middlewareTags;
     }
 
     /**
@@ -264,7 +277,7 @@ class Router
     */
     public function getHttpMethod()
     {
-        return $this->_httpMethod;
+        return $this->httpMethod;
     }
 
     /**
@@ -274,7 +287,7 @@ class Router
     */
     public function getCacheSettings()
     {
-        return $this->_cacheSettings;
+        return $this->cacheSettings;
     }
 
     /**
@@ -283,7 +296,7 @@ class Router
     * @param string|array  $middlewareTags - comma separated tags or array
     * @return array
     */
-    protected function _normalizeMiddlewareTags($middlewareTags)
+    protected function normalizeMiddlewareTags($middlewareTags)
     {
         return is_array($middlewareTags)
             ? $middlewareTags

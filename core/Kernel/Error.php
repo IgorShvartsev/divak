@@ -10,7 +10,7 @@ namespace Kernel;
 */
 class Error
 {
-    protected static $_handlers = array();
+    protected static $handlers = [];
 
     private function __construct()
     {
@@ -53,7 +53,7 @@ class Error
                     break;
             }
 
-            $exception = new \ErrorException($type.': '.$errstr, 0, $errno, $errfile, $errline);
+            $exception = new \ErrorException($type . ': ' . $errstr, 0, $errno, $errfile, $errline);
             static::exceptionHandler($exception);
         }
         return false;
@@ -73,17 +73,27 @@ class Error
             //error_log($log, 0);
         }
 
-        if (count(static::$_handlers) > 0) {
-            foreach (static::$_handlers as $handleFunc) {
+        if (count(static::$handlers) > 0) {
+            foreach (static::$handlers as $handleFunc) {
                 call_user_func($handleFunc, $e);
             }
             exit();
         }
 
-        $description = sprintf("%s:%d\n%s\n[%s]\n%s\n", $e->getFile(), $e->getLine(), $e->getMessage(), get_class($e), $e->getTraceAsString());
+        $description = sprintf(
+            "%s:%d\n%s\n[%s]\n%s\n", 
+            $e->getFile(), 
+            $e->getLine(), 
+            $e->getMessage(), 
+            get_class($e), 
+            $e->getTraceAsString()
+        );
         if (get_class($e) == 'Kernel\Exception\ResponseException') {
             \Response::responseCodeHeader($e->getCode());
-        } elseif (get_class($e) == 'Kernel\Exception\KernelException' || get_class($e) == 'ErrorException') {
+        } elseif (
+            get_class($e) === 'Kernel\Exception\KernelException' 
+            || get_class($e) === 'ErrorException'
+        ) {
             \Response::responseCodeHeader(401);
         }
 
@@ -101,6 +111,6 @@ class Error
     */
     public static function addCustomExceptionHandler(\Closure $callback)
     {
-        static::$_handlers[] = $callback;
+        static::$handlers[] = $callback;
     }
 }

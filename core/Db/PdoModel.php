@@ -36,22 +36,23 @@ class PdoModel extends \Db\PdoDriver
     /**
     * update
     *
-    * @param array $hash - array of pairs field=>value
-    * @param array $where - where clause array joined with AND , key can contain <,>,!=, = at the end of field name
+    * @param array $hash array of pairs field=>value
+    * @param array $where where clause array joined with AND , key can contain <,>,!=, = at the end of field name
     */
-    public function update($hash = array(), $where = array())
+    public function update($hash = [], $where = [])
     {
         if (!count($hash) || !count($where)) {
             return false;
         }
+        
         $keys = array_keys($hash);
-        foreach ($keys as $idx=>$key) {
-            $keys[$idx] = "`".$key."`";
+        foreach ($keys as $idx => $key) {
+            $keys[$idx] = "`" . $key . "`";
         }
         $keys = join(' = ? , ', $keys);
         $keys .= ' = ? ';
         $values = array_values($hash);
-        $whereKeys = array();
+        $whereKeys = [];
         foreach ($where as $f => $v) {
             if (preg_match('/\s*[<>=]{1,2}\s*$/', $f)) {
                 $whereKeys[] = "`" . $f . "`" . ' ? ';
@@ -63,6 +64,7 @@ class PdoModel extends \Db\PdoDriver
         $whereValues = array_values($where) ;
         $sql = "UPDATE {$this->table} SET $keys WHERE $whereKeys";
         $this->query($sql)->execute(array_merge($values, $whereValues));
+        
         return true;
     }
     
@@ -72,19 +74,20 @@ class PdoModel extends \Db\PdoDriver
     * @param mixed $hash - array of pairs field=>value
     * @return int
     */
-    public function insert($hash = array())
+    public function insert($hash = [])
     {
         if (!count($hash)) {
             return false;
         }
         $keys = array_keys($hash);
-        foreach ($keys as $i=>$v) {
+        foreach ($keys as $i => $v) {
             $keys[$i] = "`$v`";
         }
         $keys = join(', ',  $keys) ;
         $values = array_values($hash) ;
         $q = $this->generatePlaceHolders(count($hash)) ;
-        $sql = "INSERT INTO {$this->table} ($keys) VALUES ($q)" ;
+        $sql = "INSERT INTO {$this->table} ($keys) VALUES ($q)";
+
         return $this->query($sql)->execute($values)->getLastInsertId();
     }
     

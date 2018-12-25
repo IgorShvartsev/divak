@@ -20,15 +20,15 @@ class Manager
     * Connection pool
     * @var array
     */
-    protected $_pool = [];
+    protected $pool = [];
     
     /**
     * Connect to DB with given driver
     * Succesful connection is added to Pool
     *
-    * @param array $dbParams -  array DB credentials
-    * @param string $connectName - connection name
-    * @param string $dbDriverName - default is PDO
+    * @param array $dbParams array DB credentials
+    * @param string $connectName connection name
+    * @param string $dbDriverName default is PDO
     */
     public function connect($dbParams, $connectName, $dbDriverName = null)
     {
@@ -40,20 +40,25 @@ class Manager
                 throw new DbException('Db parameter "' . $k . '" is not defined');
             }
         }
+
         if (empty($connectName)) {
             throw new DbException('Connection name is empty');
         }
+
         if (empty($dbDriverName)) {
             $dbDriverName = $this->getDefaultDriver();
         }
-        $method = '_' . strtolower($dbDriverName) . 'Driver';
+
+        $method = strtolower($dbDriverName) . 'Driver';
         if (!method_exists($this, $method)) {
             throw new KernelException('Method is not defined : ' . $method);
         }
-        if (isset($this->_pool[$connectName])) {
-            $this->_disconnect($connectName);
+
+        if (isset($this->pool[$connectName])) {
+            $this->disconnect($connectName);
         }
-        $this->_pool[$connectName] = $this->$method(
+
+        $this->pool[$connectName] = $this->$method(
             $params['adapter'],
             $params['host'],
             $params['user'],
@@ -69,7 +74,7 @@ class Manager
     */
     public function disconnect($connectName)
     {
-        unset($this->_pool[$connectName]);
+        unset($this->pool[$connectName]);
     }
     
     /**
@@ -80,10 +85,14 @@ class Manager
     */
     public function getConnection($connectName)
     {
-        if (empty($this->_pool[$connectName])) {
-            throw new DbException('Connection "' . $connectName . '" is not created. Use "connect" method to create connection');
+        if (empty($this->pool[$connectName])) {
+            throw new DbException(
+                'Connection "' . $connectName 
+                . '" is not created. Use "connect" method to create connection'
+            );
         }
-        return $this->_pool[$connectName];
+
+        return $this->pool[$connectName];
     }
     
     /**
@@ -91,7 +100,7 @@ class Manager
     */
     public function tracePool()
     {
-        \Debug::trace($this->_pool);
+        \Debug::trace($this->pool);
     }
 
     /**
@@ -107,21 +116,21 @@ class Manager
     /**
     * PDO driver to connect to DB
     *
-    * @param string $adapter  - mysql,sqlite, postgreSql ...
-    * @param string $host     - usually locallhost
-    * @param string $user     - user name
-    * @param string $password - password
-    * @param string $database - DB name
+    * @param string $adapter mysql,sqlite, postgreSql ...
+    * @param string $host usually locallhost
+    * @param string $user user name
+    * @param string $password password
+    * @param string $database DB name
     */
-    protected function _pdoDriver($adapter, $host, $user, $password, $database)
+    protected function pdoDriver($adapter, $host, $user, $password, $database)
     {
-        $dbh = $adapter == 'sqlight' ?
-             new \PDO('sqlite:' . STORAGE_PATH . '/data/' . $database . '.db')
-             :
-             new \PDO($adapter . ':dbname=' . $database . ';host=' . $host, $user, $password);
+        $dbh = $adapter == 'sqlight' 
+            ? new \PDO('sqlite:' . STORAGE_PATH . '/data/' . $database . '.db')
+            : new \PDO($adapter . ':dbname=' . $database . ';host=' . $host, $user, $password);
         $dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $query = "SET NAMES UTF8";
         $dbh->exec($query);
+        
         return new PdoDriver($dbh);
     }
 }

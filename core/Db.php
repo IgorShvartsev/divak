@@ -15,6 +15,7 @@ class Db
         if (empty($connectName)) {
             $connectionName = \Config::get('database.default');
         }
+        
         return $dbManager->getConnection($connectionName);
     }
 }

@@ -20,7 +20,7 @@ class Controller
     *
     * @param array $options
     */
-    public function setOptions($options = array())
+    public function setOptions($options = [])
     {
         while (list($name, $value) = each($options)) {
             if (isset($this->$name) && is_string($name)) {
@@ -52,10 +52,10 @@ class Controller
     /**
     *  Renders view
     *
-    *  @param array $data - template data
-    *  @param string $template - template name
+    *  @param array $data template data
+    *  @param string $template template name
     *  @param bool $noController
-    *  @param bool $return  - print or return  rendered result
+    *  @param bool $return print or return rendered result
     */
     public function render($data = null, $template = null, $noController = false, $return = false)
     {

@@ -5,14 +5,14 @@ class IndexController extends \Controller
     /**
     * @var \UserModel 
     */
-    protected $_userModel;
+    protected $userModel;
    
     /**
     *  Example of DI
     */
     public function __construct(\UserModel $userModel)
     {
-        $this->_userModel = $userModel;
+        $this->userModel = $userModel;
     }
 
     /**
@@ -45,7 +45,7 @@ class IndexController extends \Controller
     public function user()
     {
         $id = \Request::getParam('param1', 0);
-        $user = $this->_userModel->find($id);
+        $user = $this->userModel->find($id);
         \Debug::trace($user);
 
         // or using \Db

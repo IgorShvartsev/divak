@@ -14,31 +14,32 @@ class SessionManager
     /**
     * @var SessionHandlerInterface
     */
-    protected static $_handler;
+    protected static $handler;
 
     /**
     * Set session handler
     *
     * @param string $type
+    * @throws Exception
     */
     public static function setHandler($type = 'file', $options = [])
     {
-        $handleClass = '\\Session\\Handler\\' . ucfirst($type).'Handler';
+        $handleClass = '\\Session\\Handler\\' . ucfirst($type) . 'Handler';
         $filePath = str_replace('\\', '/', $handleClass) . '.php';
         
         $fileHandlers = [
-            APP_PATH .'/core'. $filePath ,        // custom implementation in app/core/Session/Handle dir
-            dirname(__FILE__) . '/..'. $filePath  // core implemetation
+            APP_PATH . '/core' . $filePath , // custom implementation in app/core/Session/Handle dir
+            dirname(__FILE__) . '/..' . $filePath  // core implemetation
         ];
 
         foreach ($fileHandlers as $fileHandler) {
             if (file_exists($fileHandler)) {
                 require_once($fileHandler);
-                self::$_handler = new $handleClass($options);
-                if (!static::$_handler instanceof \SessionHandlerInterface) {
+                self::$handler = new $handleClass($options);
+                if (!static::$handler instanceof \SessionHandlerInterface) {
                     throw new \RuntimeException('Session handler doesn\'t implement "SessionHandlerInterface" in '. $fileHandler);
                 }
-                session_set_save_handler(static::$_handler, true);
+                session_set_save_handler(static::$handler, true);
                 return;
             }
         }

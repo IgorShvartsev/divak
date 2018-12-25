@@ -16,10 +16,10 @@ use \Kernel\Container\Container;
 class Kernel extends Container
 {
     /** @var Kernel\Kernel */
-    private static $_instance;
+    private static $instance;
 
     /** @var boolean */
-    private $_run = false;
+    private $run = false;
 
 
     /**
@@ -29,42 +29,48 @@ class Kernel extends Container
     */
     public static function getInstance()
     {
-        if (!self::$_instance) {
-            self::$_instance = new Kernel();
-            self::$_instance->initContainer();
+        if (!self::$instance) {
+            self::$instance = new Kernel();
+            self::$instance->initContainer();
         }
-        return self::$_instance;
+
+        return self::$instance;
     }
 
     /** Disable methods for singleton */
     private function __construct()
     {
     }
+    
     private function __clone()
     {
     }
 
     /**
     * Run application
+    * 
+    * @param Closure $callback
     */
     public function run(\Closure $callback = null)
     {
-        if ($this->_run) {
+        if ($this->run) {
             return;
         }
-        $this->_run = true;
+
+        $this->run = true;
+
         \Config::init();
         date_default_timezone_set(\Config::get('app.timezone'));
         set_error_handler('\Kernel\Error::errorHandler');
         set_exception_handler('\Kernel\Error::exceptionHandler');
-        $this->_bindCoreClasses();
+        $this->bindCoreClasses();
         if ($callback) {
             call_user_func_array($callback, [$this]);
         }
-        $this->_initSession($this->make(\Session::class), \Config::get('session'));
-        $this->_initDbConnection();
-        $this->_handleRequest();
-        $this->_dispatch();
+        $this->initSession($this->make(\Session::class), \Config::get('session'));
+        $this->initDbConnection();
+        $this->handleRequest();
+        $this->dispatch();
     }
 
     /**
@@ -73,7 +79,7 @@ class Kernel extends Container
     * @param Session $session
     * @param [] $config
     */
-    protected function _initSession(\Session $session, $config)
+    protected function initSession(\Session $session, $config)
     {
         \Session\SessionManager::setHandler($config['type']);
         $session->setCookieParams(
@@ -83,23 +89,29 @@ class Kernel extends Container
             $config['secure'],
             $config['http_only']
         );
+
         if (defined('STORAGE_PATH')) {
             $session->setStoragePath(STORAGE_PATH . '/session');
         }
+
         $session->start($config['name']);
     }
     
     /**
     * Initialize Database connection
     */
-    protected function _initDBConnection()
+    protected function initDBConnection()
     {
         $config = \Config::get('database');
+
         if (empty($config['default'])) {
             return;
         }
+
         if (!isset($config[$config['default']])) {
-            throw new KernelException('DB credentials are not found in database config for "' . $config['default'] . '"');
+            throw new KernelException(
+                'DB credentials are not found in database config for "' . $config['default'] . '"'
+            );
         }
         $dbManager = $this->make(\Db\Manager::class);
         $dbParams = $config[$config['default']];
@@ -109,46 +121,86 @@ class Kernel extends Container
     /**
     * Bind core classes into service container
     */
-    protected function _bindCoreClasses()
+    protected function bindCoreClasses()
     {
         $coreClasses = [
-            ['className' => \Kernel\Http\Request::class ,   'classImplementation' => '\Kernel\Http\Request',    'type' => ContainerInterface::BIND_SHARE],
-            ['className' => \Kernel\Http\Response::class ,  'classImplementation' => '\Kernel\Http\Response',   'type' => ContainerInterface::BIND_SHARE],
+            [
+                'className' => \Kernel\Http\Request::class ,   
+                'classImplementation' => '\Kernel\Http\Request',    
+                'type' => ContainerInterface::BIND_SHARE
+            ],
+            [
+                'className' => \Kernel\Http\Response::class ,  
+                'classImplementation' => '\Kernel\Http\Response',   
+                'type' => ContainerInterface::BIND_SHARE
+            ],
             //['className' => \Kernel\Http\MiddlewareManager::class, 'classImplementation' => '\Kernel\Http\MiddlewareManager', 'type' => ContainerInterface::BIND_SHARE],
-            ['className' => \Db\Manager::class,             'classImplementation' => '\Db\Manager',             'type' => ContainerInterface::BIND_SHARE],
-            ['className' => \Kernel\Router::class,          'classImplementation' => '\Kernel\Router',          'type' => ContainerInterface::BIND_SHARE],
-            ['className' => \Session::class,                'classImplementation' => '\Session',                'type' => ContainerInterface::BIND_SHARE],
-            ['className' => \Controller::class,             'classImplementation' => '\Controller',             'type' => ContainerInterface::BIND_FACTORY],
+            [
+                'className' => \Db\Manager::class,             
+                'classImplementation' => '\Db\Manager',             
+                'type' => ContainerInterface::BIND_SHARE
+            ],
+            [
+                'className' => \Kernel\Router::class,          
+                'classImplementation' => '\Kernel\Router',          
+                'type' => ContainerInterface::BIND_SHARE
+            ],
+            [
+                'className' => \Session::class,                
+                'classImplementation' => '\Session',                
+                'type' => ContainerInterface::BIND_SHARE
+            ],
+            [
+                'className' => \Controller::class,             
+                'classImplementation' => '\Controller',             
+                'type' => ContainerInterface::BIND_FACTORY
+            ],
         ];
+
         foreach ($coreClasses  as $item) {
             $this->bind($item['className'], $item['classImplementation'], $item['type']);
         }
 
-        $this->bindInstance(\Kernel\Http\MiddlewareManager::class, new \Kernel\Http\MiddlewareManager(\Config::get('middleware')));
-        $this->bindInstance(\Kernel\Log::class, new Log(STORAGE_PATH.'/log/log-'.date('Y-m-d').'.txt'));
+        $this->bindInstance(
+            \Kernel\Http\MiddlewareManager::class, 
+            new \Kernel\Http\MiddlewareManager(\Config::get('middleware'))
+        );
+
+        $this->bindInstance(
+            \Kernel\Log::class, 
+            new Log(STORAGE_PATH . '/log/log-' . date('Y-m-d') . '.txt')
+        );
     }
 
     /**
     * Handle resuest
     *
     */
-    protected function _handleRequest()
+    protected function handleRequest()
     {
         $request = $this->make(\Kernel\Http\Request::class);
-        $request->set($this->_tidyInput($_GET), $request::HTTP_TYPE_GET);
-        $request->set($this->_tidyInput($_POST), $request::HTTP_TYPE_POST);
-        $request->set($this->_tidyInput($_COOKIE), $request::HTTP_TYPE_COOKIE);
-        $request->set($this->_tidyInput($_REQUEST), $request::HTTP_TYPE_REQUEST);
+        $request->set($this->tidyInput($_GET), $request::HTTP_TYPE_GET);
+        $request->set($this->tidyInput($_POST), $request::HTTP_TYPE_POST);
+        $request->set($this->tidyInput($_COOKIE), $request::HTTP_TYPE_COOKIE);
+        $request->set($this->tidyInput($_REQUEST), $request::HTTP_TYPE_REQUEST);
+
         $jsonParams = file_get_contents("php://input");
         $jsonData = json_decode($jsonParams, true);
         if (json_last_error() == JSON_ERROR_NONE) {
-            $request->set($this->_tidyInput($jsonData), $request::HTTP_TYPE_JSON);
+            $request->set($this->tidyInput($jsonData), $request::HTTP_TYPE_JSON);
         }
+
         $headers = [];
         if (!function_exists('getallheaders')) {
             foreach ($_SERVER as $name => $value) {
-                if (strtolower(substr($name, 0, 5)) == 'http_') {
-                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                if (strtolower(substr($name, 0, 5)) === 'http_') {
+                    $headers[
+                        str_replace(
+                            ' ', 
+                            '-', 
+                            ucwords(strtolower(str_replace('_', ' ', substr($name, 5))))
+                        )
+                    ] = $value;
                 }
             }
         } else {
@@ -161,7 +213,7 @@ class Kernel extends Container
     /**
     * Dispatch process
     */
-    protected function _dispatch()
+    protected function dispatch()
     {
         $request  = $this->make(\Kernel\Http\Request::class);
         $response = $this->make(\Kernel\Http\Response::class);
@@ -174,7 +226,7 @@ class Kernel extends Container
         }
 
         if ($router->action) {
-            $request->set($this->_tidyInput($router->params), $request::HTTP_TYPE_PARAMS);
+            $request->set($this->tidyInput($router->params), $request::HTTP_TYPE_PARAMS);
             
             // run middlewares before
             $middlewareManager->handleBefore($request, $response);
@@ -192,27 +244,50 @@ class Kernel extends Container
                         // handle allowed HTTP method for the given route
                         $allowedHttpMethod = $router->getHttpMethod();
 
-                        if (!empty($allowedHttpMethod) && $request->getMethod() != $allowedHttpMethod) {
-                            throw new ResponseException('Method ' . $allowedHttpMethod . ' is not allowed', 405);
+                        if (
+                            !empty($allowedHttpMethod) 
+                            && $request->getMethod() !== $allowedHttpMethod
+                        ) {
+                            throw new ResponseException(
+                                'Method ' . $allowedHttpMethod . ' is not allowed', 405
+                            );
                         }
                         // handle route middlewares
                         $routeMiddlewareTags = $router->getMiddlewareTags();
-                        if (array_key_exists('before', $routeMiddlewareTags) || array_key_exists('after', $routeMiddlewareTags)) {
-                            if (!empty($routeMiddlewareTags['before']) && count($routeMiddlewareTags['before']) > 0) {
-                                $middlewareManager->handleWithTag($routeMiddlewareTags['before'], $request, $response);
+                        if (
+                            array_key_exists('before', $routeMiddlewareTags) 
+                            || array_key_exists('after', $routeMiddlewareTags)
+                        ) {
+                            if (
+                                !empty($routeMiddlewareTags['before']) 
+                                && count($routeMiddlewareTags['before']) > 0
+                            ) {
+                                $middlewareManager->handleWithTag(
+                                    $routeMiddlewareTags['before'], 
+                                    $request, 
+                                    $response
+                                );
                             }
                         } elseif (count($routeMiddlewareTags) > 0) {
-                            $middlewareManager->handleWithTag($routeMiddlewareTags, $request, $response);
+                            $middlewareManager->handleWithTag(
+                                $routeMiddlewareTags, 
+                                $request, 
+                                $response
+                            );
                         }
-                        $this->_launchControlAction($controller, $method);
+                        $this->launchControlAction($controller, $method);
                     } else {
                         throw new ResponseException(\Response::getResponseCodeDescription(404), 404);
                     }
                 } catch (\ReflectionException $e) {
-                    throw new ResponseException('Method "'.$router->action.'" does not exist in "'.$router->controller.'" controller', 404);
+                    throw new ResponseException(
+                        'Method "' . $router->action . '" does not exist in "'
+                        . $router->controller . '" controller', 
+                        404
+                    );
                 }
             } else {
-                throw new KernelException('Controller '.$router->controller.' does not exist');
+                throw new KernelException('Controller ' . $router->controller . ' does not exist');
             }
         } else {
             throw new KernelException('Action is not defined');
@@ -225,10 +300,10 @@ class Kernel extends Container
     * @param mixed $input
     * @return string
     */
-    protected function _tidyInput($input)
+    protected function tidyInput($input)
     {
         if (is_array($input)) {
-            return array_map(array($this, '_tidyInput'), $input);
+            return array_map([$this, 'tidyInput'], $input);
         } elseif (is_string($input)) {
             // xss clean
             $non_displayables[] = '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/';    // 00-08, 11, 12, 14-31, 127
@@ -250,7 +325,7 @@ class Kernel extends Container
     * @param \Controller
     * @param \ReflectionMethod
     */
-    protected function _launchControlAction(\Controller $controller, \ReflectionMethod $method)
+    protected function launchControlAction(\Controller $controller, \ReflectionMethod $method)
     {
         $cache = null;
         $request  = $this->make(\Kernel\Http\Request::class);
@@ -261,11 +336,15 @@ class Kernel extends Container
         // using cache if it's enabled for given route
         // check cache hit
         $cacheSettings = $router->getCacheSettings();
-        if ($cacheSettings['enable'] && $request->getMethod() == 'GET' && count($request->getQueryParams()) == 0) {
+        if (
+            $cacheSettings['enable'] 
+            && $request->getMethod() === 'GET' 
+            && count($request->getQueryParams()) === 0
+        ) {
             $options = \Config::get('cache.options');
             $options['lifetime'] = $cacheSettings['lifetime'];
             $cache = \Cache::factory(\Config::get('cache.type'), $options);
-            $cacheKey = $this->_getCacheKey($request, \Session::getInstance());
+            $cacheKey = $this->getCacheKey($request, \Session::getInstance());
             if ($data = $cache->load($cacheKey)) {
                 if ($data) {
                     $data = unserialize($data);
@@ -295,7 +374,10 @@ class Kernel extends Container
 
         // route middleware after
         $routeMiddlewareTags = $router->getMiddlewareTags();
-        if (array_key_exists('after', $routeMiddlewareTags) && count($routeMiddlewareTags['after']) > 0) {
+        if (
+            array_key_exists('after', $routeMiddlewareTags) 
+            && count($routeMiddlewareTags['after']) > 0
+        ) {
             $middlewareManager->handleWithTag($routeMiddlewareTags['after'], $request, $response);
         }
 
@@ -331,7 +413,7 @@ class Kernel extends Container
     * @param \Session $session
     * @return string
     */
-    protected function _getCacheKey($request, $session)
+    protected function getCacheKey($request, $session)
     {
         return serialize($request->getParams())
              . serialize($session->getAll());

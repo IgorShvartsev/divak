@@ -18,21 +18,21 @@ abstract class DbAbstract
     * DB handler
     * @var object
     */
-    protected $_dbh;
+    protected $dbh;
   
     
     /**
     * Last query string
     * @var string
     */
-    protected $_lastquery = '';
+    protected $lastquery = '';
     
     /**
     * Constructor
     */
     public function __construct($dbh)
     {
-        $this->_dbh = $dbh;
+        $this->dbh = $dbh;
     }
     
     
@@ -47,25 +47,25 @@ abstract class DbAbstract
     * fetch
     *
     * @param mixed $params
-    * @param numeric $mode - returned values 0 - assoc array, 1 - object
+    * @param numeric $mode returned values 0 - assoc array, 1 - object
     * @return object|array
     */
-    abstract public function fetch($params = array(), $mode = 0);
+    abstract public function fetch($params = [], $mode = 0);
     
     /**
     * fetchAll
     *
     * @param mixed $params
-    * @param numeric $mode - returned values 0 - assoc array, 1 - object
+    * @param numeric $mode returned values 0 - assoc array, 1 - object
     * @return object|array
     */
-    abstract public function fetchAll($params = array(), $mode = 0);
+    abstract public function fetchAll($params = [], $mode = 0);
     
     /**
     * execute
     * @param array $params
     */
-    abstract public function execute($params = array());
+    abstract public function execute($params = []);
     
     /**
     * Quotes target value
@@ -89,7 +89,7 @@ abstract class DbAbstract
     */
     public function getLastQuery()
     {
-        return $this->_lastquery;
+        return $this->lastquery;
     }
     
     
@@ -98,17 +98,17 @@ abstract class DbAbstract
     * Result looks like  INSERT INTO table (column1, column2,...) VALUES (?, ?, ...)
     * or UPDATE table SET column1 = ?, column2 = ?, .....
     *
-    * @param string $table - table name
+    * @param string $table table name
     * @param array $data
-    * @param int $sqlType -  0 - insert sql,  1 - update sql
+    * @param int $sqlType 0 - insert sql,  1 - update sql
     * @return string
     */
     public function prepareSqlFromArray($table, $data, $sqlType = 0)
     {
         $sql = '';
         
-        if (! is_array(reset($data))) {
-            $data = array($data);
+        if (!is_array(reset($data))) {
+            $data = [$data];
         }
         
         if (count($data) > 0) {
@@ -123,9 +123,9 @@ abstract class DbAbstract
             return '?';
         }, $columns);
         
-        if ($sqlType == self::SQL_TYPE_INSERT) {
+        if ($sqlType === self::SQL_TYPE_INSERT) {
             $sql = "INSERT INTO $table (" . implode(',', $columns) . ') VALUES (' . implode(',', $parameters) . ')';
-        } elseif ($sqlType == self::SQL_TYPE_UPDATE) {
+        } elseif ($sqlType === self::SQL_TYPE_UPDATE) {
             $updateData = array_map(function ($column, $param) {
                 return $column . '=' . $param;
             }, $columns, $parameters);
@@ -133,6 +133,7 @@ abstract class DbAbstract
         } else {
             trigger_error("SQL type is not defined");
         }
+        
         return  $sql;
     }
 }

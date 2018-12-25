@@ -30,6 +30,7 @@ class Facade
     public static function __callStatic($method, $args)
     {
         $instance = static::getObjectInstance();
+        
         return call_user_func_array(array($instance, $method), $args);
     }
 }

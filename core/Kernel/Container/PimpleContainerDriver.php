@@ -19,14 +19,14 @@ class PimpleContainerDriver implements ContainerInterface
     /**
     * @var PimpleContainer
     */
-    protected $_container;
+    protected $container;
     
     /**
     * Constructor
     */
     public function __construct(PimpleContainer $container)
     {
-        $this->_container = $container;
+        $this->container = $container;
     }
     
     /**
@@ -39,16 +39,16 @@ class PimpleContainerDriver implements ContainerInterface
     */
     public function bind($className, $classImplementation, $type = 0)
     {
-        if ($type == self::BIND_SHARE) {
+        if ($type === self::BIND_SHARE) {
             // to have singleton
-            $this->_container[$className] = function ($c) use ($classImplementation) {
-                return method_exists($classImplementation, 'getInstance') ?
-                      $classImplementation::getInstance()
+            $this->container[$className] = function ($c) use ($classImplementation) {
+                return method_exists($classImplementation, 'getInstance') 
+                    ? $classImplementation::getInstance()
                     : (new Resolver)->resolve($classImplementation);
             };
-        } elseif ($type == self::BIND_FACTORY) {
+        } elseif ($type === self::BIND_FACTORY) {
             // to have multiple instances
-            $this->_container[$className] = $this->_container->factory(function ($c) use ($classImplementation) {
+            $this->container[$className] = $this->container->factory(function ($c) use ($classImplementation) {
                 return (new Resolver)->resolve($classImplementation);
             });
         }
@@ -73,7 +73,7 @@ class PimpleContainerDriver implements ContainerInterface
     */
     public function bindVariable($varName, $value)
     {
-        $this->_container[$varName] = $value;
+        $this->container[$varName] = $value;
     }
 
     /**
@@ -85,8 +85,8 @@ class PimpleContainerDriver implements ContainerInterface
     */
     public function make($className)
     {
-        if (isset($this->_container[$className])) {
-            return $this->_container[$className];
+        if (isset($this->container[$className])) {
+            return $this->container[$className];
         } else {
             throw new ContainerException('Container doesn\'t contain key "' . $className . '"');
         }
@@ -100,7 +100,7 @@ class PimpleContainerDriver implements ContainerInterface
     */
     public function isValid($key)
     {
-        return isset($this->_container[$key]);
+        return isset($this->container[$key]);
     }
 
     /**

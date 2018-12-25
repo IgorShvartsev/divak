@@ -46,7 +46,7 @@ class Resolver
      */
     public function getDependencies($parameters)
     {
-        $dependencies = array();
+        $dependencies = [];
 
         foreach ($parameters as $parameter) {
             $dependency = $parameter->getClass();

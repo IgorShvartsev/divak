@@ -10,53 +10,60 @@
 class Translator
 {
     protected $lang = '';
-    protected $data = array();
+    protected $data = [];
     protected $file;
-    
+
     /**
-    * constructor
-    *
-    * @param string $path    - folder where language files are located
-    * @param string $lang    - locale
-    * @param string $fileext - if language file has extension (without dot at the beginning)
-    * @return Translator
-    */
+     * constructor.
+     *
+     * @param string $path folder where language files are located
+     * @param string $lang locale
+     * @param string $fileext if language file has extension (without dot at the beginning)
+     *
+     * @return Translator
+     */
     public function __construct($path, $lang, $fileext = 'php')
     {
         $localization_name = 'localization_' . $lang;
         global ${$localization_name};
-        
+
         $this->lang = $lang;
-        $this->file = rtrim($path, '/') . '/' . $lang . (!empty($fileext) ? ('.'.$fileext) : '');
+        $this->file = rtrim($path, '/') . '/' . $lang . (!empty($fileext) ? ('.' . $fileext) : '');
         if (!file_exists($this->file)) {
-            if ($fp = fopen($this->file, 'w+')) {
-                fwrite($fp, "<?php\n\t".'$localization_'.$lang." = array();\n");
+            if ($fp = fopen($this->file, 'w+b')) {
+                fwrite($fp, "<?php\n\t" . '$localization_' . $lang . " = array();\n");
                 fclose($fp);
                 chmod($this->file, 0777);
             } else {
                 throw new \Exception("Could not open file $file");
             }
         }
-        
+
         include_once $this->file;
         $this->data = ${$localization_name};
     }
 
     /**
-    * get translated text
-    *
-    * @param string $val
-    * @return string
-    */
+     * get translated text.
+     *
+     * @param string $val
+     *
+     * @return string
+     */
     public function _($val)
     {
         if (isset($this->data[md5($val)])) {
             return stripslashes($this->data[md5($val)]);
         }
         $this->data[md5($val)] = $val;
-        if ($fp = fopen($this->file, 'a+')) {
-            fwrite($fp, "\t".'$localization_' . $this->lang ."['".md5($val)."'] = '".str_replace("'", "\'", $val)."';\n");
+        if ($fp = fopen($this->file, 'a+b')) {
+            fwrite(
+                $fp, 
+                "\t" . '$localization_' . $this->lang 
+                . "['" . md5($val) . "'] = '" . str_replace("'", "\'", $val) . "';\n"
+            );
         }
+
         return stripslashes($val);
     }
 }

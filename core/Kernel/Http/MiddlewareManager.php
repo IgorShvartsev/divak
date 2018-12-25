@@ -16,19 +16,19 @@ class MiddlewareManager
 	/**
 	* @var array;
 	*/
-	protected $_config;
+	protected $config;
 
 	/**
 	* Middleware list before application handling
 	* @var array
 	*/
-	protected $_before;
+	protected $before;
 
 	/**
 	* Middleware list after application handling
 	* @var array
 	*/
-	protected $_after;
+	protected $after;
 
 	/**
 	* Constructor
@@ -37,12 +37,12 @@ class MiddlewareManager
 	*/
 	public function __construct($config)
 	{
-		$this->_config = $config;
-		foreach($this->_config['before'] as $mTag) {
-			$this->_before[] = $this->_resolveClassOnTag($mTag);
+		$this->config = $config;
+		foreach($this->config['before'] as $mTag) {
+			$this->before[] = $this->resolveClassOnTag($mTag);
 		}
-		foreach($this->_config['after'] as $mTag) {
-			$this->_after[] = $this->_resolveClassOnTag($mTag);
+		foreach($this->config['after'] as $mTag) {
+			$this->after[] = $this->resolveClassOnTag($mTag);
 		}
 	}
 
@@ -55,10 +55,11 @@ class MiddlewareManager
 	*/
 	public function handleBefore($request, $response)
 	{
-		if (!count($this->_before)) {
+		if (!count($this->before)) {
 			return $response;
 		}
-		return $this->_executeWithPipe($this->_before, $request, $response);
+
+		return $this->executeWithPipe($this->before, $request, $response);
 	}
 
 	/**
@@ -70,10 +71,11 @@ class MiddlewareManager
 	*/
 	public function handleAfter($request, $response)
 	{
-		if (!count($this->_after)) {
+		if (!count($this->after)) {
 			return $response;
 		}
-		return $this->_executeWithPipe($this->_after, $request, $response);
+
+		return $this->executeWithPipe($this->after, $request, $response);
 	}
 
 	/**
@@ -91,9 +93,10 @@ class MiddlewareManager
 		}
 		$mArr = [];
 		foreach($mTag as $t) {
-			$mArr[] = $this->_resolveClassOnTag($t);
+			$mArr[] = $this->resolveClassOnTag($t);
 		}
-		return $this->_executeWithPipe($mArr, $request, $response);
+
+		return $this->executeWithPipe($mArr, $request, $response);
 	}
 
 	/**
@@ -103,11 +106,12 @@ class MiddlewareManager
 	* @param \Kernel\Http\Request $request
 	* @param \Kernel\Http\Response $response
 	*/
-	protected function _executeWithPipe($mArr, $request, $response)
+	protected function executeWithPipe($mArr, $request, $response)
 	{
 		$mArr = array_reverse($mArr);
-		$f = $this->_makeInitialHandleFunction($response);
-		$pipe = $this->_makePipeFunction($mArr, $f);
+		$f = $this->makeInitialHandleFunction($response);
+		$pipe = $this->makePipeFunction($mArr, $f);
+
 		return $pipe($request);
 	}
 
@@ -117,7 +121,7 @@ class MiddlewareManager
 	* @param \Kernel\Http\Response
 	* @return \Kernel\Http\Response
     */
-	protected function _makeInitialHandleFunction($response)
+	protected function makeInitialHandleFunction($response)
 	{
 		return function($callback) use ($response){
 			return $response;
@@ -131,7 +135,7 @@ class MiddlewareManager
 	* @param callable $initialFunction
 	* @return mixed
 	*/
-	protected function _makePipeFunction($mArr, callable $initialFunction)
+	protected function makePipeFunction($mArr, callable $initialFunction)
 	{
 		return array_reduce($mArr, function($stack, $m) {
 			return function($param) use ($stack, $m){
@@ -146,12 +150,15 @@ class MiddlewareManager
 	* @param string $middlewareTag
 	* @return object
 	*/
-	protected function _resolveClassOnTag($middlewareTag) 
+	protected function resolveClassOnTag($middlewareTag) 
 	{
-		if (isset($this->_config['middleware'][$middlewareTag])) {
-			$mObject = new $this->_config['middleware'][$middlewareTag];
+		if (isset($this->config['middleware'][$middlewareTag])) {
+			$mObject = new $this->config['middleware'][$middlewareTag];
 			if (!method_exists($mObject, 'handle')) {
-				throw new KernelException('Not defined method "handle" in middleware class ' . $this->_config['middleware'][$middlewareTag]);
+				throw new KernelException(
+					'Not defined method "handle" in middleware class ' 
+					. $this->config['middleware'][$middlewareTag]
+				);
 			}
 			return $mObject;
 		} else {

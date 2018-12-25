@@ -1,5 +1,4 @@
 <?php
-
 namespace Kernel\Container;
 
 use \Kernel\Exception\KernelException;
@@ -18,7 +17,7 @@ class Container
     /**
     * @var \Kernel\Container\ContainerInterface
     */
-    protected $_containerDriver;
+    protected $containerDriver;
 
     /**
     * Init container with given container driver from third part
@@ -31,10 +30,12 @@ class Container
         if (!$containerDriverName) {
             $containerDriverName = $this->getDefaultContainerDriver();
         }
+
         $method = 'create' . ucfirst($containerDriverName) . 'ContainerDriver';
         if (!method_exists($this, $method)) {
             throw new KernelException('Method is not defined : ' . $method);
         }
+        
         $this->$method();
     }
 
@@ -53,7 +54,7 @@ class Container
     */
     public function traceContainer()
     {
-        echo '<pre>' . print_r($this->_containerDriver, true) . '</pre>';
+        echo '<pre>' . print_r($this->containerDriver, true) . '</pre>';
     }
 
     /**
@@ -62,7 +63,7 @@ class Container
     */
     protected function createPimpleContainerDriver()
     {
-        $this->_containerDriver = (new \Resolver)->resolve(PimpleContainerDriver::class);
+        $this->containerDriver = (new \Resolver)->resolve(PimpleContainerDriver::class);
     }
 
     /**
@@ -74,7 +75,8 @@ class Container
      */
     public function __call($method, $parameters)
     {
-        $callable = [$this->_containerDriver, $method];
+        $callable = [$this->containerDriver, $method];
+        
         return call_user_func_array($callable, $parameters);
     }
 }

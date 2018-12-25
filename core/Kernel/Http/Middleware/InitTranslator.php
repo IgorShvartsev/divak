@@ -1,5 +1,4 @@
 <?php
-
 namespace Kernel\Http\Middleware;
 
 use \Kernel\Exception\ResponseException;

@@ -1,5 +1,4 @@
 <?php
-
 namespace Kernel;
 
 /**
@@ -45,36 +44,12 @@ class Log
     {
         $this->logfile = $logfile;
         $this->checkFileTimeDelay = $delay;
+
         if (empty($this->logfile)) {
             $this->error = "File name empty";
         }
     }
-    
-    /**
-    * write method
-    *
-    * @param mixed $msg - message to be loged
-    */
-    private function write($msg, $type = 'Error')
-    {
-        if (empty($this->logfile)) {
-            return false;
-        }
-        $this->error = '';
-        if (file_exists($this->logfile)) {
-            $lastmodified = filemtime($this->logfile);
-            $this->lastUpdated   = (time() - $lastmodified) < $this->checkFileTimeDelay;
-        }
-        if ($f = fopen($this->logfile, 'a+')) {
-            fwrite($f, date('d-m-Y H:i'). ' ' . $type . '  ' . $msg . "\n");
-            fclose($f);
-            return $this->lastUpdated ? false : true;
-        } else {
-            $this->error = "File ". $this->logfile . "can't be created or not found";
-        }
-        return false;
-    }
-    
+
     /**
     * Magic call
     * Calls methods: status, notify, system, error
@@ -103,9 +78,38 @@ class Log
             default:
                 throw new \Exception("Undefined method $method");
         }
+
         if (!count($args)) {
             throw new \Exception("Method $method needs param \$msg");
         }
+        
         $this->write($args[0], $type);
+    }
+    
+    /**
+    * write method
+    *
+    * @param mixed $msg - message to be loged
+    */
+    private function write($msg, $type = 'Error')
+    {
+        if (empty($this->logfile)) {
+            return false;
+        }
+
+        $this->error = '';
+        if (file_exists($this->logfile)) {
+            $lastmodified = filemtime($this->logfile);
+            $this->lastUpdated   = (time() - $lastmodified) < $this->checkFileTimeDelay;
+        }
+        if ($f = fopen($this->logfile, 'a+')) {
+            fwrite($f, date('d-m-Y H:i') . ' ' . $type . '  ' . $msg . "\n");
+            fclose($f);
+            return $this->lastUpdated ? false : true;
+        } else {
+            $this->error = "File " . $this->logfile . "can't be created or not found";
+        }
+
+        return false;
     }
 }

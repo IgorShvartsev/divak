@@ -12,19 +12,19 @@ namespace Kernel\Http;
 class Response
 {
     /** @var \Response */
-    private static $_instance = null;
+    private static $instance = null;
 
     /** @var array */
-    protected $_cookies = [];
+    protected $cookies = [];
 
     /** @var array */
-    protected $_headers = [];
+    protected $headers = [];
 
     /** @var array */
-    protected $_body = [];
+    protected $body = [];
     
     /** @var array */
-    protected $_codes = [
+    protected $codes = [
         200 => 'OK',
         201 => 'Created',
         202 => 'Accepted',
@@ -89,10 +89,10 @@ class Response
     */
     public static function getInstance()
     {
-        if (!self::$_instance) {
-            self::$_instance = new Response();
+        if (!self::$instance) {
+            self::$instance = new Response();
         }
-        return self::$_instance;
+        return self::$instance;
     }
 
     /* RESSTRICT methods for making singleton */
@@ -111,11 +111,11 @@ class Response
     public function responseCodeHeader($code)
     {
         $sapi_name = php_sapi_name();
-        if (isset($this->_codes[$code])) {
-            if ($sapi_name == 'cgi' || $sapi_name == 'cgi-fcgi') {
-                header('Status: ' . $this->_codes[$code]);
+        if (isset($this->codes[$code])) {
+            if ($sapi_name === 'cgi' || $sapi_name === 'cgi-fcgi') {
+                header('Status: ' . $this->codes[$code]);
             } else {
-                header($_SERVER['SERVER_PROTOCOL'] . ' ' . $code . ' ' . $this->_codes[$code]);
+                header($_SERVER['SERVER_PROTOCOL'] . ' ' . $code . ' ' . $this->codes[$code]);
             }
         }
     }
@@ -128,10 +128,11 @@ class Response
     */
     public function getResponseCodeDescription($code)
     {
-        if (isset($this->_codes[$code])) {
-            $description = trim(str_replace($code, '', $this->_codes[$code]));
+        if (isset($this->codes[$code])) {
+            $description = trim(str_replace($code, '', $this->codes[$code]));
             return $description;
         }
+
         return '';
     }
 
@@ -144,7 +145,7 @@ class Response
     public function setHeader($key, $value)
     {
         $key = str_replace('_', '-', strtolower($key));
-        $this->_headers[$key] = $value;
+        $this->headers[$key] = $value;
     }
 
     /**
@@ -156,7 +157,8 @@ class Response
     public function getHeader($key)
     {
         $key = str_replace('_', '-', strtolower($key));
-        return array_key_exists($key, $this->_headers) ? $this->_headers[$key] : null;
+
+        return array_key_exists($key, $this->headers) ? $this->headers[$key] : null;
     }
 
     /**
@@ -178,7 +180,7 @@ class Response
     */
     public function getHeaders()
     {
-        return $this->_headers;
+        return $this->headers;
     }
 
     /**
@@ -192,10 +194,11 @@ class Response
     * @param boolean $secure
     * @param boolean $httponly
     */
-    public function setCookie($name, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false)
-    {
+    public function setCookie(
+        $name, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false
+    ) {
         $data = compact('name', 'value', 'expire', 'path', 'domain', 'secure', 'httponly');
-        $this->_cookies[$data['name']] = $data;
+        $this->cookies[$data['name']] = $data;
     }
 
     /**
@@ -205,7 +208,7 @@ class Response
     */
     public function getCookies()
     {
-        return $this->_cookies;
+        return $this->cookies;
     }
 
     /**
@@ -215,7 +218,7 @@ class Response
     */
     public function setBody($content)
     {
-        $this->_body[] = $content;
+        $this->body[] = $content;
     }
 
     /**
@@ -225,7 +228,7 @@ class Response
     */
     public function getBody()
     {
-        return $this->_body;
+        return $this->body;
     }
 
     /**
@@ -235,7 +238,7 @@ class Response
     {
         if (is_array($content)) {
             $this->setHeader('Content-Type', 'application/json');
-            $this->_body[] = json_encode($content);
+            $this->body[] = json_encode($content);
         }
         return $content;
     }
@@ -248,7 +251,7 @@ class Response
     public function redirect($url)
     {
         $this->responseCodeHeader(301);
-        header('Location: ' . \Config::get('app.base_url') . '/' .ltrim($url, '/'));
+        header('Location: ' . \Config::get('app.base_url') . '/' . ltrim($url, '/'));
         exit(0);
     }
 }

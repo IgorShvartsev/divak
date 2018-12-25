@@ -10,17 +10,17 @@
 */
 class Loader
 {
-    protected static $_directories = [];
+    protected static $directories = [];
 
-    protected static $_registered = false;
+    protected static $isRegistered = false;
 
     /**
     * Regiser autoload function
     */
     public static function register()
     {
-        if (!self::$_registered) {
-            self::$_registered = spl_autoload_register(array('Loader', 'loadClass'));
+        if (!self::$isRegistered) {
+            self::$isRegistered = spl_autoload_register(array('Loader', 'loadClass'));
         }
     }
 
@@ -32,16 +32,17 @@ class Loader
     */
     public static function loadClass($class)
     {
-        if ($class[0] == '\\') {
+        if ($class[0] === '\\') {
             $class = substr($class, 1);
         }
-        $class = str_replace(array('\\', '_'), DIRECTORY_SEPARATOR, $class).'.php';
-        foreach (self::$_directories as $dir) {
-            if (file_exists($file = $dir.DIRECTORY_SEPARATOR.$class)) {
+        $class = str_replace(array('\\', '_'), DIRECTORY_SEPARATOR, $class) . '.php';
+        foreach (self::$directories as $dir) {
+            if (file_exists($file = $dir . DIRECTORY_SEPARATOR . $class)) {
                 require_once $file;
                 return true;
             }
         }
+
         return false;
     }
 
@@ -53,6 +54,6 @@ class Loader
     */
     public static function addDirectories($dirs)
     {
-        self::$_directories = array_unique(array_merge(self::$_directories, (array)$dirs));
+        self::$directories = array_unique(array_merge(self::$directories, (array)$dirs));
     }
 }
