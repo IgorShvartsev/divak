@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="<?php echo $this->lang ;?>">
+<html lang="<?=$this->lang ;?>">
 <head>
-	<title><?php echo $this->title(); ?></title>
+	<title><?=$this->title(); ?></title>
 	<meta charset="utf-8" /> 
 	<meta http-equiv="cache-control" content="no-cache" />
 	<meta http-equiv="expires" content="0"/>
@@ -11,19 +11,22 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="description" content=""/>
 	<link href="<?php $this->url('favicon.ico'); ?>" rel="icon" />
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous" />
-	<link rel="stylesheet" href="<? $this->url('css/style.css'); ?>" type="text/css" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+	<link rel="stylesheet" href="<?php $this->url('css/style.css'); ?>" type="text/css" />
 </head>
 <body>
 	<div class="container">
 		<header></header>
+
 		<div class="content">
 			<?php $this->getContent(); ?>
 		</div>
+
 		<footer></footer>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.min.js" integrity="sha384-Atwg2Pkwv9vp0ygtn1JAojH0nYbwNJLPhwyoVbhoPwBhjQPR5VtM2+xf0Uwh9KtT" crossorigin="anonymous"></script>
 		<script type="text/javascript" src="<?php $this->url('js/script.js'); ?>"></script>
 	</div>
 </body>

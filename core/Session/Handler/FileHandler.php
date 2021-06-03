@@ -1,18 +1,18 @@
 <?php
-
 namespace Session\Handler;
 
 /**
-*  Session File handler
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ *  Session File handler
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class FileHandler implements \SessionHandlerInterface
 {
     /**
     * Storage path
+    * 
     * @var string
     */
     private $savePath;
@@ -31,10 +31,13 @@ class FileHandler implements \SessionHandlerInterface
     *
     * @param string $savePath - abs path to session directory
     * @param string $sessionName
+    * 
+    * @return boolean
     */
     public function open($savePath, $sessionName)
     {
         $this->savePath = $savePath;
+
         if (!is_dir($this->savePath)) {
             mkdir($this->savePath, 0777);
         }
@@ -55,6 +58,7 @@ class FileHandler implements \SessionHandlerInterface
     * Must be returned as string. Inner PHP engine that unserialize this string
     *
     * @param string $id
+    * 
     * @return string
     */
     public function read($id)
@@ -68,6 +72,7 @@ class FileHandler implements \SessionHandlerInterface
     *
     * @param string $id
     * @param string $data
+    * 
     * @return boolean
     */
     public function write($id, $data)
@@ -79,11 +84,13 @@ class FileHandler implements \SessionHandlerInterface
     * Destroy session with given ID
     *
     * @param string $id
+    * 
     * @return boolean
     */
     public function destroy($id)
     {
         $file = "{$this->savePath}/sess_$id";
+
         if (file_exists($file)) {
             unlink($file);
         }

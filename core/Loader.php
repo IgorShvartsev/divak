@@ -1,17 +1,23 @@
 <?php
 
 /**
-*  Class Loader
-*  Registers autoload function
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ *  Class Loader
+ *  Registers autoload function
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class Loader
 {
+    /**
+     * @var array $directories 
+     */
     protected static $directories = [];
 
+    /**
+     * @var boolean $isRegistered 
+     */
     protected static $isRegistered = false;
 
     /**
@@ -20,25 +26,31 @@ class Loader
     public static function register()
     {
         if (!self::$isRegistered) {
-            self::$isRegistered = spl_autoload_register(array('Loader', 'loadClass'));
+            self::$isRegistered = spl_autoload_register(['Loader', 'loadClass']);
         }
     }
 
     /**
-    * Load class function
-    *
-    * @param string $class;
-    * @return boolean
-    */
+     * Load class function
+     *
+     * @param string $class
+     * 
+     * @return boolean
+     */
     public static function loadClass($class)
     {
         if ($class[0] === '\\') {
             $class = substr($class, 1);
         }
-        $class = str_replace(array('\\', '_'), DIRECTORY_SEPARATOR, $class) . '.php';
+
+        $class = str_replace(['\\', '_'], DIRECTORY_SEPARATOR, $class) . '.php';
+
         foreach (self::$directories as $dir) {
-            if (file_exists($file = $dir . DIRECTORY_SEPARATOR . $class)) {
+            $file = $dir . DIRECTORY_SEPARATOR . $class;
+
+            if (file_exists($file)) {
                 require_once $file;
+
                 return true;
             }
         }
@@ -47,13 +59,35 @@ class Loader
     }
 
     /**
-    * Add directories to be scanned for autoload
-    *
-    * @param array $dirs
-    * @return void
-    */
-    public static function addDirectories($dirs)
+     * Add directories to be scanned for autoload
+     *
+     * @param array $dirs
+     */
+    public static function addDirectories(array $dirs)
     {
-        self::$directories = array_unique(array_merge(self::$directories, (array)$dirs));
+        self::$directories = array_unique(array_merge(self::$directories, $dirs));
+    }
+
+    /**
+     * Load php files fith functions from the given folder
+     * 
+     * @param string $functionFolder
+     * 
+     * @throws RuntimeException
+     */ 
+    public static function loadFunctions($functionFolder = null)
+    {
+        if (!empty($functionFolder) && is_dir($functionFolder)) {
+            $functionFolder = rtrim($functionFolder, '/');
+            $phpFiles = glob($functionFolder . '/*.php');
+
+            if (!empty($phpFiles)) {
+                foreach ($phpFiles as $phpFile) {
+                    require_once $phpFile;
+                }
+            }
+        } else {
+            throw new \RuntimeException('Function folder doesn\'t exist: ' . $functionFolder);
+        }
     }
 }

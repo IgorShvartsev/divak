@@ -1,12 +1,12 @@
 <?php
 
 /**
-*  Validation class
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * Validation class
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class Validation
 {
     /**
@@ -22,6 +22,7 @@ class Validation
         if (preg_match('/[^0-9]/', $val)) {
             return false;
         }
+
         if (function_exists('mb_strlen')) {
             return mb_strlen($str) > $val;
         }
@@ -42,6 +43,7 @@ class Validation
         if (preg_match('/[^0-9]/', $val)) {
             return false;
         }
+
         if (function_exists('mb_strlen')) {
             return mb_strlen($str) < $val;
         }
@@ -62,6 +64,7 @@ class Validation
         if (preg_match('/[^0-9]/', $val)) {
             return false;
         }
+
         if (function_exists('mb_strlen')) {
             return mb_strlen($str) === $val;
         }
@@ -93,6 +96,7 @@ class Validation
         if (false === strpos($str, ',')) {
             return static::validEmail(trim($str));
         }
+
         foreach (explode(',', $str) as $email) {
             if ('' !== trim($email) && !static::validEmail(trim($email))) {
                 return false;
@@ -198,6 +202,7 @@ class Validation
         if (!preg_match('/^[0-9]+$/', $str)) {
             return false;
         }
+        
         if (0 === $str) {
             return false;
         }
@@ -233,13 +238,16 @@ class Validation
     {
         $ok = true;
         $arr = explode(' ', $str);
+
         foreach ($arr as $word) {
             if (empty($word)) {
                 continue;
             }
+
             if (!method_exists('Validation', $vMethod)) {
                 throw new \Exception('Validation method is undefined. Look Validation.class for correct method');
             }
+
             if ('minLegth' === $vMethod || 'maxLength' === $vMethod || 'exactLength' === $vMethod) {
                 if (!self::$vMethod($word, $val)) {
                     $ok = false;

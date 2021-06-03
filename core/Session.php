@@ -1,12 +1,12 @@
 <?php
 
 /**
-* Class Sessions
-* 
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * Class Sessions
+ * 
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class Session
 {
     /**
@@ -53,6 +53,15 @@ class Session
      * @var bool
      */
     protected static $isHttpOnly = false;
+
+    /**
+     * SameSite
+     * Allows you to declare if your cookie should be restricted to a first-party 
+     * or same-site context 
+     * 
+     * @var string $sameSite 'Strict', Lax', 'None'
+     */ 
+    protected static $sameSite = 'Lax';
 
     /**
      * Disable construct.
@@ -111,15 +120,22 @@ class Session
      * @param string $domain
      * @param bool $isSecure
      * @param bool $isHttpOnly
+     * @param string $sameSite
      */
     public static function setCookieParams(
-        $lifetime = 0, $path = '/', $domain = '', $isSecure = false, $isHttpOnly = false
+        $lifetime = 0, 
+        $path = '/', 
+        $domain = '', 
+        $isSecure = false, 
+        $isHttpOnly = false,
+        $sameSite = 'Lax'
     ) {
         self::$lifetime = $lifetime;
         self::$path = $path;
         self::$domain = $domain;
         self::$isSecure = $isSecure;
         self::$isHttpOnly = $isHttpOnly;
+        self::$sameSite = $sameSite;
     }
 
     /**
@@ -141,10 +157,27 @@ class Session
     {
         if ($name) {
             session_name(preg_replace('/[^a-zA-Z1-9]/i', '', $name));
-            session_set_cookie_params(
-                self::$lifetime, self::$path, self::$domain, self::$isSecure, self::$isHttpOnly
-            );
+
+            if (PHP_VERSION_ID < 70300) {
+                session_set_cookie_params(
+                    self::$lifetime, 
+                    self::$path . ';samesite=' . self::$sameSite, 
+                    self::$domain, 
+                    self::$isSecure, 
+                    self::$isHttpOnly
+                );
+            } else {
+                session_set_cookie_params([
+                    'lifetime' => self::$lifetime,
+                    'path' => self::$path,
+                    'domain' => self::$domain,
+                    'secure' => self::$isSecure,
+                    'httponly' => self::$isHttpOnly,
+                    'samesite' => self::$sameSite,
+                ]);
+            }
         }
+        
         session_start();
     }
 

@@ -1,12 +1,24 @@
 <?php
 namespace Middleware;
 
+/**
+ * Auth class
+ * 
+ */ 
 class Auth
 {
-    public function handle($response, \Closure $next)
+    /**
+     * Handle response 
+     * 
+     * @param \Kernel\Http\Request $request
+     * @param Closure $next
+     * 
+     * @return \Kernel\Http\Response
+     */
+    public function handle($request, \Closure $next)
     {
-        $response =  $next($response);
-        
+        $response =  $next($request);
+
         return $response;
     }
 }

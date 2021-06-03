@@ -1,14 +1,13 @@
 <?php
-
 namespace Kernel\Http;
 
 /**
-* Response class
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * Response class
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class Response
 {
     /** @var \Response */
@@ -92,6 +91,7 @@ class Response
         if (!self::$instance) {
             self::$instance = new Response();
         }
+
         return self::$instance;
     }
 
@@ -99,6 +99,7 @@ class Response
     private function __construct()
     {
     }
+
     protected function __clone()
     {
     }
@@ -111,6 +112,7 @@ class Response
     public function responseCodeHeader($code)
     {
         $sapi_name = php_sapi_name();
+
         if (isset($this->codes[$code])) {
             if ($sapi_name === 'cgi' || $sapi_name === 'cgi-fcgi') {
                 header('Status: ' . $this->codes[$code]);
@@ -124,6 +126,7 @@ class Response
     * Get response code description
     *
     * @param int $code
+    * 
     * @return string;
     */
     public function getResponseCodeDescription($code)
@@ -152,6 +155,7 @@ class Response
     * Get header entry
     *
     * @param string $key
+    * 
     * @return string
     */
     public function getHeader($key)
@@ -195,9 +199,16 @@ class Response
     * @param boolean $httponly
     */
     public function setCookie(
-        $name, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false
+        $name, 
+        $value, 
+        $expire = 0, 
+        $path = '/', 
+        $domain = '', 
+        $secure = false, 
+        $httponly = false,
+        $samesite = 'Lax'
     ) {
-        $data = compact('name', 'value', 'expire', 'path', 'domain', 'secure', 'httponly');
+        $data = compact('name', 'value', 'expire', 'path', 'domain', 'secure', 'httponly', 'samesite');
         $this->cookies[$data['name']] = $data;
     }
 
@@ -240,6 +251,7 @@ class Response
             $this->setHeader('Content-Type', 'application/json');
             $this->body[] = json_encode($content);
         }
+        
         return $content;
     }
 
@@ -248,10 +260,18 @@ class Response
     *
     * @param string $url
     */
-    public function redirect($url)
+    public function redirect($url = null)
     {
         $this->responseCodeHeader(301);
-        header('Location: ' . \Config::get('app.base_url') . '/' . ltrim($url, '/'));
+
+        if (!$url) {
+            header('Location: index.php');
+        } elseif (preg_match('#^http#i', $url)) {
+            header('Location: ' . $url);
+        } else {
+            header('Location: ' . \Config::get('app.base_url') . '/' . ltrim($url, '/'));
+        }
+
         exit(0);
     }
 }

@@ -3,8 +3,8 @@ namespace Admin;
 
 class IndexController extends \Controller
 {
-	public function index()
-	{
-		echo 'Admin';
-	}
+    public function index()
+    {
+        echo 'Admin';
+    }
 }

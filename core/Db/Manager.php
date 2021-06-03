@@ -7,17 +7,18 @@ use \Db\Exception\DbException;
 use \Db\PdoDriver;
 
 /**
-* DB manager
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * DB manager
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class Manager
 {
     
     /**
     * Connection pool
+    * 
     * @var array
     */
     protected $pool = [];
@@ -29,10 +30,13 @@ class Manager
     * @param array $dbParams array DB credentials
     * @param string $connectName connection name
     * @param string $dbDriverName default is PDO
+    * 
+    * @throws DbException
     */
     public function connect($dbParams, $connectName, $dbDriverName = null)
     {
         $params = [];
+
         foreach (['adapter', 'database', 'host', 'user', 'password'] as $k) {
             if (isset($dbParams[$k])) {
                 $params[$k] = $dbParams[$k];
@@ -50,6 +54,7 @@ class Manager
         }
 
         $method = strtolower($dbDriverName) . 'Driver';
+
         if (!method_exists($this, $method)) {
             throw new KernelException('Method is not defined : ' . $method);
         }
@@ -81,7 +86,10 @@ class Manager
     * Retrieve connection from Pool
     *
     * @param string $connectName
+    * 
     * @return object(driver)
+    * 
+    * @throws DbException
     */
     public function getConnection($connectName)
     {
@@ -127,10 +135,11 @@ class Manager
         $dbh = $adapter == 'sqlight' 
             ? new \PDO('sqlite:' . STORAGE_PATH . '/data/' . $database . '.db')
             : new \PDO($adapter . ':dbname=' . $database . ';host=' . $host, $user, $password);
+            
         $dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $query = "SET NAMES UTF8";
         $dbh->exec($query);
-        
+
         return new PdoDriver($dbh);
     }
 }

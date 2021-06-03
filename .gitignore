@@ -1,0 +1,11 @@
+/.settings/
+/.vagrant/
+/composer.lock
+/vendor/
+
+# ******** Divak Framework ******* #
+/error_log
+/access_log
+/storage/
+/config/
+/public/.htaccess

@@ -7,6 +7,6 @@ namespace Cache\Exception;
 *
 * @author Igor Shvartsev (igor.shvartsev@gmail.com)
 * @package Divak
-* @version 1.0
+* @version 1.1
 */
 class CacheException extends \Exception{};

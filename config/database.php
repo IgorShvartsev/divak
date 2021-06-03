@@ -12,17 +12,17 @@ return [
     */ 
     'connect_1' => [
         'adapter'  => 'mysql',  
-    	'database' => 'xxxxx',
-    	'host'     => 'localhost',
-    	'user'     => 'xxxxx',
-    	'password' => 'xxxxx',
+        'database' => 'xxxxx',
+        'host'     => 'localhost',
+        'user'     => 'xxxxx',
+        'password' => 'xxxxx',
     ],
 
     'connect_2' => [
-    	'adapter'  => 'mysql',  
-    	'database' => '',
-    	'host'     => 'localhost',
-    	'user'     => '',
-    	'password' => '',
+        'adapter'  => 'mysql',  
+        'database' => '',
+        'host'     => 'localhost',
+        'user'     => '',
+        'password' => '',
     ]
 ];

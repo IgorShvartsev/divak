@@ -4,12 +4,12 @@ namespace Kernel;
 use \Kernel\Exception\RouteException;
 
 /**
-* Router class
-*
-* @author Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * Router class
+ *
+ * @author Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class Router
 {
     /**
@@ -100,6 +100,10 @@ class Router
     *
     * @param string $uri
     * @param string $httpMethod
+    * 
+    * @throws RouteException
+    * 
+    * @return boolean
     */
     public function parseUrl($uri, $httpRequestMethod)
     {
@@ -110,6 +114,7 @@ class Router
             ['\\/', '\\.', '\\,', '\\;'], 
             $this->baseUrl
         );
+
         $uri = preg_replace('$' . $pattern . '$i', '', $uri);
         $uri = preg_replace('/\?.*$/', '', $uri);
         $uri = trim($uri, '/');
@@ -124,10 +129,13 @@ class Router
         } else {
             $this->params['lang'] = strtolower(\Config::get('app.default_language'));
         }
+
+        $this->params['uri'] = $uri;
            
         // handle routers from config/route.php
         $routes = !empty(\Config::get('route')) ? \Config::get('route') : [];
         $isFoundRoute = false;
+
         foreach ($routes as $key => $val) {
             $key = str_replace(':any', '.+', str_replace(':num', '[0-9]+', $key));
  
@@ -137,8 +145,11 @@ class Router
                         if (is_array($data)) {
                             // check if "action" key is set in array, it's required
                             if (!isset($data['action'])) {
-                                throw new RouteException('Key "action" is not defined for route `' . $key . '');
+                                throw new RouteException(
+                                    'Key "action" is not defined for route `' . $key . ''
+                                );
                             }
+
                             // check if "middleware" key is set in array with condition "before" and/or  "after"
                             // if there are no any conditions middleware is supposed to have condition "before"
                             // on default
@@ -157,12 +168,14 @@ class Router
                                         $isConditionAvailable = true;
                                     }
                                 }
+
                                 if (!$isConditionAvailable && !empty($data['middleware'])) {
                                     $this->middlewareTags = $this->normalizeMiddlewareTags(
                                         $data['middleware']
                                     );
                                 }
                             }
+
                             // check if there is cache settings for the given route
                             if (array_key_exists('cache', $data) && is_array($data['cache'])) {
                                 foreach ($data['cache'] as $key => $v) {
@@ -178,6 +191,7 @@ class Router
                         
                         $httpMethod = strtoupper($httpMethod);
                         $this->httpMethod = $httpMethod;
+
                         if (strtoupper($httpRequestMethod) === $httpMethod) {
                             break;
                         }
@@ -187,8 +201,10 @@ class Router
                 if (strpos($val, '$') !== false && strpos($key, '(') !== false) {
                     $val = preg_replace('#^' . $key . '$#', $val, $uri);
                 }
+
                 $uri = $val;
                 $isFoundRoute = true;
+
                 break;
             }
         }
@@ -200,18 +216,22 @@ class Router
         $this->params['page'] = '';
            
         $uriElements = array_values(array_filter(explode('/', $uri)));
+        
         if (count($uriElements) > 0) {
             $controller = array_shift($uriElements);
             $controller = ucfirst(strtolower($controller));
+
             if (is_dir($this->controllerPath . $controller)) {
                 if (count($uriElements) > 0) {
                     $this->controller = $controller . '\\' . ucfirst(array_shift($uriElements)) .'Controller';
                 } else {
                     $this->controller = $controller . '\IndexController';
                 }
+
                 $this->module = $controller;
             } else {
                 $this->controller = $controller . 'Controller';
+
                 if (!file_exists($this->controllerPath.$this->controller . '.php')) {
                     $this->controller = 'IndexController';
                     $action = $controller;
@@ -219,19 +239,28 @@ class Router
             }
                
             $action = !empty($action) ? $action : array_shift($uriElements);
+
             if (!empty($action)) {
                 $this->action = strtolower(preg_replace('/[\'";!@#$%^&*()[]=|{}:;.,?`~<> ]/i', '', $action));
-                // make camelcase name it there is "_" between words
-                $this->action = preg_replace_callback('/[-]([a-z])/i', function ($matches) {
-                    return ucfirst($matches[1]);
-                }, $this->action);
+                // make camelcase name if there is "-" between words
+                $this->action = preg_replace_callback(
+                    '/[-]([a-z])/i', 
+                    function ($matches) {
+                        return ucfirst($matches[1]);
+                    }, 
+                    $this->action
+                );
             }
+
             if (count($uriElements) > 0) {
                 $uriElements = array_reverse($uriElements);
                 if (count($uriElements) > 0  && preg_match('/\.htm|html$/i', $uriElements[0])) {
                     $page = array_shift($uriElements);
                     $this->params['page'] = str_replace(array('.html', '.htm'), '', $page);
+                } else {
+                    $this->params['page'] = $action;
                 }
+
                 $uriElements = array_reverse($uriElements);
 
                 $i = 1;
@@ -240,12 +269,11 @@ class Router
                     $i++;
                 }
             } else {
-                $this->params['page'] = 'index';
+                $this->params['page'] = $action;
             }
         }
-        $this->params['pageid']  = md5(
-            $this->params['lang'] . $this->controller . $this->action . $this->params['page']
-        );
+
+        $this->params['pageid']  = md5($this->params['lang'] . $this->controller . $this->action . $this->params['page']);
         
         return true;
     }

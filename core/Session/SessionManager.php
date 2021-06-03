@@ -1,14 +1,13 @@
 <?php
-
 namespace Session;
 
 /**
-* Session Manager class
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * Session Manager class
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class SessionManager
 {
     /**
@@ -20,7 +19,9 @@ class SessionManager
     * Set session handler
     *
     * @param string $type
-    * @throws Exception
+    * @param array $options
+    * 
+    * @throws RuntimeException
     */
     public static function setHandler($type = 'file', $options = [])
     {
@@ -34,11 +35,15 @@ class SessionManager
 
         foreach ($fileHandlers as $fileHandler) {
             if (file_exists($fileHandler)) {
-                require_once($fileHandler);
+                require_once $fileHandler;
                 self::$handler = new $handleClass($options);
+
                 if (!static::$handler instanceof \SessionHandlerInterface) {
-                    throw new \RuntimeException('Session handler doesn\'t implement "SessionHandlerInterface" in '. $fileHandler);
+                    throw new \RuntimeException(
+                        'Session handler doesn\'t implement "SessionHandlerInterface" in '. $fileHandler
+                    );
                 }
+
                 session_set_save_handler(static::$handler, true);
                 return;
             }

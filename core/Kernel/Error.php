@@ -2,35 +2,50 @@
 namespace Kernel;
 
 /**
-* Error class
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * Error class
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class Error
 {
+    /**
+     * @var array $handlers
+     */ 
     protected static $handlers = [];
 
+    /**
+     * Constructor 
+     */
     private function __construct()
     {
     }
+
+    /**
+     *  Clone
+     */ 
     private function __clone()
     {
     }
 
     /**
-    *  Error Handler
-    *
-    * @param int $errno
-    * @param string $errstr
-    * @param string $errfile
-    * @param string $errline
-    * @param string $errcontext
-    */
+     *  Error Handler
+     *
+     * @param int $errno
+     * @param string $errstr
+     * @param string $errfile
+     * @param string $errline
+     * @param string $errcontext
+     * 
+     * @return boolean
+     * 
+     * @throws ErrorException 
+     */
     public static function errorHandler($errno, $errstr, $errfile, $errline, $errcontext)
     {
         $l = error_reporting();
+
         if ($l & $errno) {
             switch ($errno) {
                 case E_USER_ERROR:
@@ -56,16 +71,16 @@ class Error
             $exception = new \ErrorException($type . ': ' . $errstr, 0, $errno, $errfile, $errline);
             static::exceptionHandler($exception);
         }
+
         return false;
     }
 
     /**
-    * Exception handler
-    *
-    * @param Exception $e
-    * @return void
-    */
-    public static function exceptionHandler(\Exception $e)
+     * Exception handler
+     *
+     * @param Exception | Throwable $e
+     */
+    public static function exceptionHandler($e)
     {
         $log = $e->getMessage() . PHP_EOL . $e->getTraceAsString() . PHP_EOL;
             
@@ -88,27 +103,26 @@ class Error
             get_class($e), 
             $e->getTraceAsString()
         );
+
         if (get_class($e) == 'Kernel\Exception\ResponseException') {
             \Response::responseCodeHeader($e->getCode());
-        } elseif (
-            get_class($e) === 'Kernel\Exception\KernelException' 
-            || get_class($e) === 'ErrorException'
-        ) {
+        } elseif (get_class($e) == 'Kernel\Exception\KernelException' || get_class($e) === 'ErrorException') {
             \Response::responseCodeHeader(401);
         }
 
         if (\Config::get('app.show_errors')) {
             \View::quickRender('error', ['description' => nl2br($description)]);
         }
+        
         exit(0);
     }
 
     /**
-    * Add custom implementation of Exception Handler to collection
-    * At least added one handler overrides existing one
-    *
-    * @param Closure $callback
-    */
+     * Add custom implementation of Exception Handler to collection
+     * At least added one handler overrides existing one
+     *
+     * @param Closure $callback
+     */
     public static function addCustomExceptionHandler(\Closure $callback)
     {
         static::$handlers[] = $callback;

@@ -2,12 +2,12 @@
 namespace Kernel\Http;
 
 /**
-* Request class
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * Request class
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class Request
 {
     /** REQUEST TYPES */
@@ -60,6 +60,7 @@ class Request
     *
     * @param string $name
     * @param string $default
+    * 
     * @return mixed
     */
     public function getCookie($name, $default = null)
@@ -71,6 +72,7 @@ class Request
     * Get given header
     *
     * @param string $headerName
+    * 
     * @return string | null
     */
     public function getHeader($headerName)
@@ -93,6 +95,7 @@ class Request
     *
     * @param string $name
     * @param string $default
+    * 
     * @return mixed
     */
     public function getFromRequest($name, $default = null)
@@ -119,6 +122,7 @@ class Request
     *
     * @param string $name
     * @param string $default
+    * 
     * @return mixed
     */
     public function getJson($name, $default = null)
@@ -141,6 +145,7 @@ class Request
     *
     * @param string $name
     * @param string $default
+    * 
     * @return mixed
     */
     public function getQuery($name, $default = null)
@@ -153,6 +158,7 @@ class Request
     *
     * @param string $name
     * @param string $default
+    * 
     * @return mixed
     */
     public function getParam($name, $default = null)
@@ -205,6 +211,7 @@ class Request
     *
     * @param string $name
     * @param string $default
+    * 
     * @return mixed
     */
     public function getPost($name, $default = null)
@@ -216,6 +223,7 @@ class Request
     * Check if given header is available
     *
     * @param  string $headerName
+    * 
     * @return boolean
     */
     public function headerExists($headerName)
@@ -230,7 +238,7 @@ class Request
     */
     public function isGet()
     {
-        return $this->getMethod() === 'GET';
+        return $this->getMethod() == 'GET';
     }
    
     /**
@@ -240,7 +248,7 @@ class Request
     */
     public function isPost()
     {
-        return $this->getMethod() === 'POST';
+        return $this->getMethod() == 'POST';
     }
     
     /**
@@ -256,32 +264,32 @@ class Request
     /**
     * Set data for specific request type
     *
-    * @return void
+    * @throws Exception
     */
     public function set($data, $type)
     {
         switch ($type) {
-        case self::HTTP_TYPE_GET:
-            $this->get = (array)$data;
-            break;
-        case self::HTTP_TYPE_POST:
-            $this->post = (array)$data;
-            break;
-        case self::HTTP_TYPE_COOKIE:
-            $this->cookie = (array)$data;
-            break;
-        case self::HTTP_TYPE_REQUEST:
-            $this->request = (array)$data;
-            break;
-        case self::HTTP_TYPE_JSON:
-            $this->json = (array)$data;
-            break;
-        case self::HTTP_TYPE_PARAMS:
-            $this->params = (array)$data;
-            break;
-        default:
-            throw new \Exception('Request type is unknown');
-      }
+            case self::HTTP_TYPE_GET:
+                $this->get = (array)$data;
+                break;
+            case self::HTTP_TYPE_POST:
+                $this->post = (array)$data;
+                break;
+            case self::HTTP_TYPE_COOKIE:
+                $this->cookie = (array)$data;
+                break;
+            case self::HTTP_TYPE_REQUEST:
+                $this->request = (array)$data;
+                break;
+            case self::HTTP_TYPE_JSON:
+                $this->json = (array)$data;
+                break;
+            case self::HTTP_TYPE_PARAMS:
+                $this->params = (array)$data;
+                break;
+            default:
+                throw new \Exception('Request type is unknown');
+        }
     }
 
     /**

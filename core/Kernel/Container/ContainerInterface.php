@@ -1,14 +1,13 @@
 <?php
-
 namespace Kernel\Container;
 
 /**
-* Container Interface
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * Container Interface
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 interface ContainerInterface
 {
     const BIND_SHARE = 0;
@@ -45,6 +44,7 @@ interface ContainerInterface
     * Use "bind" first to save class implementation into container
     *
     * @param string $className
+    * 
     * @return instance
     */
     public function make($className);
@@ -53,6 +53,7 @@ interface ContainerInterface
     * Check if is set value|instance|callable for the given key
     *
     * @param string $key
+    * 
     * @return boolean
     */
     public function isValid($key);

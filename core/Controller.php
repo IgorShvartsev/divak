@@ -1,12 +1,12 @@
 <?php
 
 /**
-* Controller class
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * Controller class
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class Controller
 {
     /** @var \View */
@@ -16,10 +16,10 @@ class Controller
     protected $buffering = true;
 
     /**
-    * Set options
-    *
-    * @param array $options
-    */
+     * Set options
+     *
+     * @param array $options
+     */
     public function setOptions($options = [])
     {
         while (list($name, $value) = each($options)) {
@@ -30,39 +30,43 @@ class Controller
     }
 
     /**
-    * Sets view object
-    *
-    * @param View $view
-    */
+     * Sets view object
+     *
+     * @param View $view
+     */
     public function setView(\View $view = null)
     {
         $this->view = $view;
     }
    
     /**
-    * Gets view object
-    *
-    * @return \View
-    */
+     * Gets view object
+     *
+     * @return \View
+     */
     public function getView()
     {
         return $this->view;
     }
    
     /**
-    *  Renders view
-    *
-    *  @param array $data template data
-    *  @param string $template template name
-    *  @param bool $noController
-    *  @param bool $return print or return rendered result
-    */
+     *  Renders view
+     *
+     *  @param array $data template data
+     *  @param string $template template name
+     *  @param bool $noController
+     *  @param bool $return print or return rendered result
+     * 
+     *  @return string in case when $return = true
+     */
     public function render($data = null, $template = null, $noController = false, $return = false)
     {
         if (is_array($data)) {
             $this->view->setData($data);
         }
+
         $out = $this->view->render($template, $noController);
+
         if ($return) {
             return $out;
         } else {
@@ -75,10 +79,10 @@ class Controller
     }
    
     /**
-    * Magic get
-    *
-    * @param string $var
-    */
+     * Magic get
+     *
+     * @param string $var
+     */
     public function __get($var)
     {
         return $this->$var;

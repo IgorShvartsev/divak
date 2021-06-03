@@ -1,22 +1,24 @@
 <?php
 
 return [
-	// handler type (storage)
-	'type' => 'file',
+    // handler type (storage)
+    'type' => 'file',
 
-	'name' => 'divak', 
+    'name' => 'divak', 
 
-	'lifetime' => 7200,
+    'lifetime' => 7200,
 
-	'path' => '/',
+    'path' => '/',
 
-	'domain' => '',
+    'domain' => '',
 
-	'secure' => false,
+    'secure' => false,
 
-	'http_only' => false,
+    'http_only' => false,
 
-	// additional options needed for constructor of given handler
-	'options' => [
-	]
+    'samesite' => 'Lax',
+
+    // additional options needed for constructor of given handler
+    'options' => [
+    ],
 ];

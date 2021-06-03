@@ -1,22 +1,21 @@
 <?php
 
 return [
-	'' => 'index/index',
+    '' => 'index/index',
 
-	'json'  => [ 
-		'get' => [
-			'action' =>'index/json-test',
-			'cache'  => ['enable' => true, 'lifetime' => 60]
-		]
-	],
+    'json'  => [ 
+        'get' => [
+            'action' =>'index/json-test',
+            'cache'  => ['enable' => true, 'lifetime' => 60]
+        ]
+    ],
 
-	'userdata/(\d+)' => ['get' => 'index/user/$1'],
+    'userdata/(\d+)' => ['get' => 'index/user/$1'],
 
-	'root' => [
-		'get' => [ 
-			'action'     => 'admin/index/index', 
-			'middleware' => ['before'=>'auth']
-		]
-	],
+    'root' => [
+        'get' => [ 
+            'action'     => 'admin/index/index', 
+            'middleware' => ['before'=>'auth']
+        ]
+    ],
 ];
-

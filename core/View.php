@@ -1,69 +1,76 @@
 <?php
 
 /**
-* View class
-*
-* @author Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * View class
+ *
+ * @author Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class View
 {
     /**
      * Layout name.
      *
-     * @var string
+     * @var string $layout
      */
     protected $layout;
 
     /**
      * Page name.
      *
-     * @var string
+     * @var string $page
      */
     protected $page;
 
     /**
      * Controller name.
      *
-     * @var string
+     * @var string $controller
      */
     protected $controller;
 
     /**
      * View folder path.
      *
-     * @var string
+     * @var string $viewPath
      */
     protected $viewPath;
 
     /**
      * Use controler name in view path or not.
      *
-     * @var bool
+     * @var bool $noController
      */
     protected $noController;
 
     /**
      * Language.
      *
-     * @var string
+     * @var string $lang
      */
     protected $lang;
 
     /**
      * Base Url.
      *
-     * @var string
+     * @var string $baseUrl
      */
-    protected $baseUrl = '';
+    protected $baseUrl = '/';
 
     /**
      * Template data to be view.
      *
-     * @var array
+     * @var array $templateData
      */
     protected $templateData = [];
+
+    /**
+     * Template data stack
+     * 
+     * @var array $templateDataStack
+     */ 
+    protected $templateDataStack = [];
 
     /**
      * Constructor.
@@ -80,7 +87,10 @@ class View
         $this->controller = $controller;
         $this->viewPath = APP_PATH . '/views/';
         $this->lang = $lang;
-        $this->baseUrl = \Config::get('app.base_url');
+        $baseUrl = \Config::get('app.base_url');
+        if (!empty($baseUrl)) {
+            $this->baseUrl = $baseUrl;
+        }
     }
 
     /**
@@ -102,9 +112,11 @@ class View
     public function __get($name)
     {
         $val = null;
+
         if (isset($this->templateData[$name])) {
             $val = $this->templateData[$name];
         }
+
         if (null === $val) {
             $val = isset($this->$name) ? $this->$name : '';
         }
@@ -113,11 +125,11 @@ class View
     }
 
     /**
-     *  Quick render page.
+     * Quick render page.
      *
-     *  @param string $templatePath - relative path to the file (without extension .phtml)
-     *  @param array
-     *  @param string
+     * @param string $templatePath - relative path to the file (without extension .phtml)
+     * @param array
+     * @param string
      * @param mixed $data
      * @param mixed $lang
      */
@@ -174,7 +186,7 @@ class View
      */
     public function setBaseUrl($baseUrl)
     {
-        $this->baseUrl = $baseUrl;
+        $this->baseUrl = !empty($baseUrl) ? $baseUrl : '/';
     }
 
     /**
@@ -183,7 +195,9 @@ class View
     public function title()
     {
         $title = '';
+
         $title = !empty(\Config::get('app.title')) ? \Config::get('app.title') : '';
+        
         if (!empty($this->templateData['title'])) {
             $title = $this->templateData['title'] . ' - ' . $title;
         }
@@ -196,15 +210,20 @@ class View
      *
      * @param string $template
      * @param mixed  $params
+     * 
+     * @throws Exception
      */
     public function partial($template, $params = [])
     {
-        if (file_exists($this->viewPath.$template.'.phtml')) {
+        if (file_exists($this->viewPath . $template . '.phtml')) {
+            array_push($this->templateDataStack, $this->templateData);
+            $this->templateData = $params;
             extract($params);
-            include $this->viewPath.$template.'.phtml';
+            include $this->viewPath . $template . '.phtml';
+            $this->templateData = array_pop($this->templateDataStack);
             echo "\n";
         } else {
-            throw new \Exception('Template '.$template.' not found.');
+            throw new \Exception('Template ' . $template . ' not found.');
         }
     }
 
@@ -223,9 +242,9 @@ class View
             || false !== strpos($url, 'mailto:')
         ) {
         } elseif (empty($url)) {
-            $url = $this->baseUrl;
+            $url = rtrim($this->baseUrl, '/') . '/';
         } else {
-            $url = $this->baseUrl . '/' . ltrim($url, '/');
+            $url = rtrim($this->baseUrl, '/') . '/' . ltrim($url, '/');
         }
 
         if ($echo) {
@@ -246,11 +265,13 @@ class View
         $lang = strtolower(\Config::get('default_lang')) === $lang ? '' : $lang;
         $url = str_replace($this->baseUrl, '', $_SERVER['REQUEST_URI']);
         $url = preg_replace('/(\/[^\/]{2})(($)|(\/.*))/', '$4', $url);
+
         if (2 === strlen($lang)) {
-            $url = $this->baseUrl . '/' . $lang . $url;
+            $url = rtrim($this->baseUrl, '/') . '/' . $lang . $url;
         } else {
-            $url = $this->baseUrl . '/' . ltrim($url, '/');
+            $url = rtrim($this->baseUrl, '/') . '/' . ltrim($url, '/');
         }
+
         echo $url;
     }
 
@@ -267,7 +288,10 @@ class View
         $translator = \App::isValid(\Translator::class) ? \App::make(\Translator::class) : null;
 
         if ($translator) {
-            $out = !empty($replaceBy) ? str_replace('%s', $replaceBy, $translator->_($text)) : $translator->_($text);
+            $out = !empty($replaceBy) 
+                ? str_replace('%s', $replaceBy, $translator->_($text)) 
+                : $translator->_($text);
+
             if ($echo) {
                 echo $out;
             } else {
@@ -275,6 +299,7 @@ class View
             }
         } else {
             $out = !empty($replaceBy) ? str_replace('%s', $replaceBy, $text) : $text;
+
             if ($echo) {
                 echo $out;
             } else {
@@ -284,16 +309,41 @@ class View
     }
 
     /**
+     * Get safely variable value 
+     * 
+     * To avoid system warning when variable is not defined
+     * Use in templates as alternative of PHP variable 
+     * like <?=$this->v('name'); ?> instead of <?=$name; ?>
+     *  
+     * @param string $varName variable name
+     * @param mixed $default default value if variable is not defined
+     * 
+     * @return mixed
+     */ 
+    public function v($varName, $default = '')
+    {
+        if (array_key_exists($varName, $this->templateData)) {
+            return $this->templateData[$varName];
+        }
+
+        return $default;
+    }
+
+    /**
      * Get content.
+     * 
+     * @throws Exception
      */
     public function getContent()
     {
         extract($this->templateData);
+
         if (!empty($this->page)) {
             $file = $this->viewPath . ($this->noController || empty($this->controller) 
                     ? '' 
                     : (str_replace('_', '/', $this->controller) . '/'))
                 . $this->page . '.phtml';
+
             if (file_exists($file)) {
                 include_once $file;
                 echo "\n";
@@ -317,6 +367,7 @@ class View
         if ($page) {
             $this->page = $page;
         }
+
         $this->noController = $noController;
 
         return $this->output();
@@ -326,10 +377,13 @@ class View
      * Outputs rendered html.
      *
      * @param bool $return
+     * 
+     * @throws Exception
      */
     protected function output($return = false)
     {
         extract($this->templateData);
+
         if ($this->layout) {
             if (file_exists($this->viewPath . $this->layout . '.phtml')) {
                 ob_start();
@@ -338,10 +392,12 @@ class View
 
                 return $out;
             }
+
             throw new \Exception(
                 'Layout ' . $this->layout . '.phtml does not exist in views  root folder'
             );
         }
+
         ob_start();
         $this->getContent();
         $out = ob_get_clean();

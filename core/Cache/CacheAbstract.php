@@ -6,7 +6,7 @@ namespace Cache;
  *
  * @author Igor Shvartsev (igor.shvartsev@gmail.com)
  *
- * @version 1.0
+ * @version 1.1
  */
 abstract class CacheAbstract
 {
@@ -19,6 +19,7 @@ abstract class CacheAbstract
         'lifetime' => 3600,
         'logging' => false,
     ];
+    
     /**
      * Options.
      *
@@ -50,6 +51,7 @@ abstract class CacheAbstract
         if (!is_string($name)) {
             return  false;
         }
+
         $name = strtolower($name);
 
         if (isset($this->options) && array_key_exists($name, $this->options)) {

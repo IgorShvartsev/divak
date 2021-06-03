@@ -4,23 +4,26 @@ namespace Kernel\Http\Middleware;
 use \Kernel\Exception\ResponseException;
 
 /**
-*  InitTranslator class
-*  Middleware
-*/
+ *  InitTranslator class
+ *  Middleware
+ */
 class InitTranslator
 {
     /**
-    *  Middleware handle function
-    *  Is called by Kernel
+    * Middleware handle function
+    * Is called by Kernel
     *
-    *  @param \Kernel\Http\Request $request
-    *  @param \Closure $next
+    * @param \Kernel\Http\Request $request
+    * @param \Closure $next
+    * 
+    * @return \Kernel\Http\Response
     */
     public function handle($request, \Closure $next)
     {
         $lang = $request->getParam('lang');
         
         $response = $next($request);
+
         if (in_array(strtolower($lang), \Config::get('app.all_langs'))
             || in_array(strtoupper($lang), \Config::get('app.all_langs'))) {
             $translator = new \Translator(
@@ -38,6 +41,7 @@ class InitTranslator
             \View::quickRender('error', ['description' => 'Page Not Found']);
             exit();
         }
+
         return $response;
     }
 }

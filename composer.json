@@ -1,12 +1,23 @@
 {
+   "name": "IgorShvartsev/divak",
+   "description": "Divak - basic, minimalistic PHP framework",
    "autoload": {
         "classmap": [
-        	"core"
+        	   "core"
         ]
     },
    "require": {
+      "guzzlehttp/guzzle": "~6.0",
       "intervention/image": "^2.3",
       "verot/class.upload.php": "dev-master",
-      "pimple/pimple"  : "~3.0"
+      "pimple/pimple"  : "~3.0",
+      "monolog/monolog": "^1.25",
+      "mashape/unirest-php": "^3.0",
+      "nesbot/carbon": "^2.25"
+   },
+   "config": {
+        "vendor-dir": "vendor",
+        "process-timeout": 1800,
+        "sort-packages": true
    }
 }

@@ -1,32 +1,36 @@
 <?php
 
 /**
-* Facade class
-* Wrapper for object class allowing to call methods as static
-*
-* @author  Igor Shvartsev(igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * Facade class
+ * Wrapper for object class allowing to call methods as static
+ *
+ * @author  Igor Shvartsev(igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class Facade
 {
     /**
-    * Returns object instance
-    *
-    * @return Object
-    */
+     * Returns object instance
+     * Should be overriden
+     *
+     * @return Object
+     * 
+     * @throws RuntimeException
+     */
     public static function getObjectInstance()
     {
         throw new \RuntimeException('Facade doesn\'t implement getObjectInstance method');
     }
 
     /**
-    * Static calls to object
-    *
-    * @param  string  $method
-    * @param  array   $args
-    * @return mixed
-    */
+     * Static calls to object
+     *
+     * @param  string  $method
+     * @param  array   $args
+     * 
+     * @return mixed
+     */
     public static function __callStatic($method, $args)
     {
         $instance = static::getObjectInstance();

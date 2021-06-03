@@ -1,23 +1,23 @@
 <?php
 
 /**
-*  DI (Dependency Injection) resolver class
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * DI (Dependency Injection) resolver class
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class Resolver
 {
-
     /**
-    * Build an instance of the given class
-    *
-    * @param string $class
-    * @return mixed
-    *
-    * @throws Exception
-    */
+     * Build an instance of the given class
+     *
+     * @param string $class
+     * 
+     * @return mixed
+     *
+     * @throws Exception
+     */
     public function resolve($class)
     {
         $reflector = new \ReflectionClass($class);
@@ -42,6 +42,7 @@ class Resolver
      * Build up a list of dependencies for a given methods parameters
      *
      * @param array $parameters
+     * 
      * @return array
      */
     public function getDependencies($parameters)
@@ -65,6 +66,7 @@ class Resolver
      * Determine what to do with a non-class value
      *
      * @param ReflectionParameter $parameter
+     * 
      * @return mixed
      *
      * @throws Exception

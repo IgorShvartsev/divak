@@ -52,6 +52,7 @@ class IndexController extends \Controller
         $user = \Db::connection()
                     ->query("SELECT * FROM `user` WHERE `id` = ?")
                     ->fetch([$id]); 
+                    
         \Debug::trace($user);
     }
 }

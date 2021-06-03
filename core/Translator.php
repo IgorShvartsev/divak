@@ -1,16 +1,27 @@
 <?php
 
 /**
-* Translator class
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ * Translator class
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class Translator
 {
+    /**
+     * @var string $lang
+     */
     protected $lang = '';
+
+    /**
+     * @var array $data
+     */
     protected $data = [];
+
+    /**
+     * @var string $file
+     */
     protected $file;
 
     /**
@@ -21,6 +32,8 @@ class Translator
      * @param string $fileext if language file has extension (without dot at the beginning)
      *
      * @return Translator
+     * 
+     * @throws Exception
      */
     public function __construct($path, $lang, $fileext = 'php')
     {
@@ -29,9 +42,10 @@ class Translator
 
         $this->lang = $lang;
         $this->file = rtrim($path, '/') . '/' . $lang . (!empty($fileext) ? ('.' . $fileext) : '');
+
         if (!file_exists($this->file)) {
             if ($fp = fopen($this->file, 'w+b')) {
-                fwrite($fp, "<?php\n\t" . '$localization_' . $lang . " = array();\n");
+                fwrite($fp, "<?php\n\t" . '$localization_' . $lang . " = [];\n");
                 fclose($fp);
                 chmod($this->file, 0777);
             } else {
@@ -55,7 +69,9 @@ class Translator
         if (isset($this->data[md5($val)])) {
             return stripslashes($this->data[md5($val)]);
         }
+
         $this->data[md5($val)] = $val;
+        
         if ($fp = fopen($this->file, 'a+b')) {
             fwrite(
                 $fp, 

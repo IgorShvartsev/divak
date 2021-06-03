@@ -8,7 +8,7 @@ use Cache\Exception\CacheFileException;
  *
  * @author Igor Shvartsev (igor.shvartsev@gmail.com)
  *
- * @version 1.0
+ * @version 1.1
  */
 class CacheFile extends CacheAbstract
 {
@@ -29,12 +29,15 @@ class CacheFile extends CacheAbstract
      *
      * @param array $options
      * @param mixed $logging
+     * 
+     * @throws CacheFileException
      */
     public function __construct($options = [], $isLogging = false)
     {
         parent::__construct($options);
         $this->directives['lifetime'] = isset($options['lifetime']) ? $options['lifetime'] : 3600;
         $this->directives['logging'] = $isLogging;
+
         if (null !== $this->options['cache_dir']) {
             $this->setCacheDir($this->options['cache_dir']);
         } else {
@@ -48,20 +51,23 @@ class CacheFile extends CacheAbstract
      * @param string $value
      * @param bool   $trailingSeparator I$this->controllerPathf true, add a trailing separator is necessary
      *
-     * @throws Zend_Cache_Exception
+     * @throws CacheFileException
      */
     public function setCacheDir($value, $trailingSeparator = true)
     {
         if (!is_dir($value)) {
             throw new CacheFileException('cache_dir must be a directory');
         }
+
         if (!is_writable($value)) {
             throw new CacheFileException('cache_dir is not writable');
         }
+
         if ($trailingSeparator) {
             // add a trailing DIRECTORY_SEPARATOR if necessary
             $value = rtrim(realpath($value), '\\/').\DIRECTORY_SEPARATOR;
         }
+
         $this->options['cache_dir'] = $value;
     }
 
@@ -70,6 +76,7 @@ class CacheFile extends CacheAbstract
     *
     * @param string $id
     * @param boolean $doNotTestCacheValidity
+    * 
     * @return mixed
     */
     public function load($id, $doNotTestCacheValidity = false)
@@ -78,6 +85,7 @@ class CacheFile extends CacheAbstract
             // The cache is not hit !
             return false;
         }
+
         $id = $this->hash($id, $this->options['control_type']);
         $file = $this->file($id);
 
@@ -88,15 +96,18 @@ class CacheFile extends CacheAbstract
     * Test cache on availability ID
     *
     * @param string $id
+    * 
     * @return boolean
     */
     public function test($id)
     {
         $id = $this->hash($id, $this->options['control_type']);
         $file = $this->file($id);
+
         if (!file_exists($file)) {
             return false;
         }
+
         clearstatcache();
         $lastModifiedTime = (int) (filemtime($file) / $this->directives['lifetime']) * $this->directives['lifetime'];
 
@@ -120,6 +131,7 @@ class CacheFile extends CacheAbstract
     * Remove cached data by ID
     *
     * @param string $id
+    * 
     * @return boolean
     */
     public function remove($id)
@@ -139,9 +151,11 @@ class CacheFile extends CacheAbstract
         $path = $this->options['cache_dir'];
         $prefix = $this->options['file_name_prefix'];
         $glob = @glob($path . $prefix . '_*');
+
         if (false === $glob) {
             return true;
         }
+
         foreach ($glob as $file) {
             if (is_file($file)) {
                 $fileName = basename($file);
@@ -235,18 +249,24 @@ class CacheFile extends CacheAbstract
     protected function fileGetContents($file)
     {
         $result = false;
+
         if (!is_file($file)) {
             return false;
         }
+
         $f = @fopen($file, 'rb');
+
         if ($f) {
             if ($this->options['file_locking']) {
                 @flock($f, LOCK_SH);
             }
+
             $result = stream_get_contents($f);
+
             if ($this->options['file_locking']) {
                 @flock($f, LOCK_UN);
             }
+
             @fclose($f);
         }
 
@@ -264,19 +284,25 @@ class CacheFile extends CacheAbstract
     protected function filePutContents($file, $string)
     {
         $result = false;
+
         $f = @fopen($file, 'ab+');
+
         if ($f) {
             if ($this->options['file_locking']) {
                 @flock($f, LOCK_EX);
             }
+
             fseek($f, 0);
             ftruncate($f, 0);
             $tmp = @fwrite($f, $string);
+
             if (!(false === $tmp)) {
                 $result = true;
             }
+
             @fclose($f);
         }
+
         @chmod($file, 0600);
 
         return $result;
@@ -300,14 +326,17 @@ class CacheFile extends CacheAbstract
      * Delete file.
      *
      * @param mixed $id
+     * 
      * @return boolean
      */
     protected function delete($id)
     {
         $file = $this->file($id);
+
         if (!is_file($file)) {
             return false;
         }
+        
         @unlink($file);
 
         return true;

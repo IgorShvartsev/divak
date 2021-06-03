@@ -6,7 +6,7 @@ use Cache\Exception\CacheException;
  *
  *  @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  *
- *  @version 1.0
+ *  @version 1.1
  */
 class Cache
 {
@@ -19,13 +19,17 @@ class Cache
      * @param bool $autoload If autoload is used
      *
      * @return Cache\CacheAbstract
+     * 
+     * @throws CacheExeption
      */
     public static function factory($type, $options = [])
     {
         if (empty($type)) {
             throw new CacheExeption('Cache type is empty.');
         }
+
         $class = '\Cache\Cache' . $type;
+        
         if (!class_exists($class)) {
             throw new CacheException('Class ' . $class . ' not defined.');
         }

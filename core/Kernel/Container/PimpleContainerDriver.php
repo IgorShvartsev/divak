@@ -1,5 +1,4 @@
 <?php
-
 namespace Kernel\Container;
 
 use \Kernel\Exception\ContainerException;
@@ -8,12 +7,12 @@ use \Pimple\Container as PimpleContainer;
 use \Resolver;
 
 /**
-*  Container driver using Pimple third part
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.0
-*/
+ *  Container driver using Pimple third part
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.1
+ */
 class PimpleContainerDriver implements ContainerInterface
 {
     /**
@@ -81,7 +80,10 @@ class PimpleContainerDriver implements ContainerInterface
     * Use "bind" first to save class implementation into container
     *
     * @param string $className
+    * 
     * @return instance
+    * 
+    * @throws ContainerException
     */
     public function make($className)
     {
@@ -96,6 +98,7 @@ class PimpleContainerDriver implements ContainerInterface
     * Check if is set value|instance|callable for the given key
     *
     * @param string $key
+    * 
     * @return boolean
     */
     public function isValid($key)

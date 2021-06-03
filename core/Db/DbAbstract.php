@@ -7,7 +7,7 @@ namespace Db;
 *
 * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
 * @package Divak
-* @version 1.0
+* @version 1.1
 */
 abstract class DbAbstract
 {
@@ -16,6 +16,7 @@ abstract class DbAbstract
    
     /**
     * DB handler
+    * 
     * @var object
     */
     protected $dbh;
@@ -23,12 +24,14 @@ abstract class DbAbstract
     
     /**
     * Last query string
+    * 
     * @var string
     */
     protected $lastquery = '';
     
     /**
     * Constructor
+    * 
     */
     public function __construct($dbh)
     {
@@ -48,6 +51,7 @@ abstract class DbAbstract
     *
     * @param mixed $params
     * @param numeric $mode returned values 0 - assoc array, 1 - object
+    * 
     * @return object|array
     */
     abstract public function fetch($params = [], $mode = 0);
@@ -57,12 +61,14 @@ abstract class DbAbstract
     *
     * @param mixed $params
     * @param numeric $mode returned values 0 - assoc array, 1 - object
+    * 
     * @return object|array
     */
     abstract public function fetchAll($params = [], $mode = 0);
     
     /**
     * execute
+    * 
     * @param array $params
     */
     abstract public function execute($params = []);
@@ -71,6 +77,7 @@ abstract class DbAbstract
     * Quotes target value
     *
     * @param string|int $value
+    * 
     * @return string|int
     */
     abstract public function quote($value);
@@ -85,6 +92,7 @@ abstract class DbAbstract
     
     /**
     * getLastQuery
+    * 
     * @return last query string
     */
     public function getLastQuery()
@@ -101,6 +109,7 @@ abstract class DbAbstract
     * @param string $table table name
     * @param array $data
     * @param int $sqlType 0 - insert sql,  1 - update sql
+    * 
     * @return string
     */
     public function prepareSqlFromArray($table, $data, $sqlType = 0)
@@ -118,6 +127,7 @@ abstract class DbAbstract
         $columns = array_map(function ($val) {
             return '`' . $val . '`';
         }, array_keys($data[key($data)]));
+        
         // get parameters
         $parameters = array_map(function () {
             return '?';
