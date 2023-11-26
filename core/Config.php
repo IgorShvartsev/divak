@@ -5,17 +5,17 @@
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Config
 {
     /**
-     * @var string $confDir
+     * @var string
      */
     protected static $confDir = '/../config';
 
     /**
-     * @var array $confData 
+     * @var array
      */
     protected static $confData = [];
 
@@ -47,9 +47,11 @@ class Config
                 if (is_file($entryPath)) {
                     $key = basename($entryPath, '.php');
                     $data = require_once $entryPath;
+
                     if (!is_array($data)) {
                         throw new \Exception('Data is not an array type in ' . $entryPath);
                     }
+                    
                     self::$confData[$key] = $data;
                 }
             }

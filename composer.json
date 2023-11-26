@@ -1,11 +1,17 @@
 {
-   "name": "IgorShvartsev/divak",
+   "name": "igorshvartsev/divak",
    "description": "Divak - basic, minimalistic PHP framework",
+   "version": "1.1.2",
    "autoload": {
-        "classmap": [
-        	   "core"
-        ]
-    },
+      "classmap": [
+         "core"
+      ],
+      "psr-4": {
+         "Library\\": "app/library",
+         "Helpers\\": "app/helpers",
+         "Middleware\\": "app/middleware"
+      }
+   },
    "require": {
       "guzzlehttp/guzzle": "~6.0",
       "intervention/image": "^2.3",
@@ -16,8 +22,8 @@
       "nesbot/carbon": "^2.25"
    },
    "config": {
-        "vendor-dir": "vendor",
-        "process-timeout": 1800,
-        "sort-packages": true
+      "vendor-dir": "vendor",
+      "process-timeout": 1800,
+      "sort-packages": true
    }
 }

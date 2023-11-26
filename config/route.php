@@ -2,6 +2,7 @@
 
 return [
     '' => 'index/index',
+    'sendmail' => 'index/sendMail',
 
     'json'  => [ 
         'get' => [
@@ -15,6 +16,13 @@ return [
     'root' => [
         'get' => [ 
             'action'     => 'admin/index/index', 
+            'middleware' => ['before'=>'auth']
+        ]
+    ],
+
+    'chat' => [
+        'get' => [ 
+            'action'     => '[chat]/index', 
             'middleware' => ['before'=>'auth']
         ]
     ],

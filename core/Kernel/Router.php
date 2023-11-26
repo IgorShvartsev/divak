@@ -8,107 +8,103 @@ use \Kernel\Exception\RouteException;
  *
  * @author Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Router
 {
     /**
-    * Current controller
-    *
-    * @var string
-    */
-    public $controller;
+     * Current controller
+     *
+     * @var string
+     */
+    public $controller = '';
     
     /**
-    * Current action
-    *
-    * @var string
-    */
+     * Current action
+     *
+     * @var string
+     */
     public $action = 'index';
 
-    
     /**
-    *  Current module
-    *
-    * @var string
-    */
-    public $module = '';
-    
-    /**
-    * Params
-    *
-    * @var array
-    */
+     * Params
+     *
+     * @var array
+     */
     public $params = [];
+
+    /**
+     * @var string
+     */
+    protected $moduleName = '';
     
     /**
-    * Controller path
-    *
-    * @var string
-    */
-    protected $controllerPath = '';
+     * Controller path
+     *
+     * @var string
+     */
+    protected $controllerDir = 'controllers';
     
     
     /**
-    * Base Url
-    *
-    * @var string
-    */
+     * Base Url
+     *
+     * @var string
+     */
     protected $baseUrl = '';
 
     /**
-    * HTTP method (GET, POST, PUT, DELETE)
-    *
-    * @var string
-    */
+     * HTTP method (GET, POST, PUT, DELETE)
+     *
+     * @var string
+     */
     protected $httpMethod;
 
     /**
-    * Middleware tag array that should be applied to the given route
-    *
-    * @var string
-    */
+     * Middleware tag array that should be applied to the given route
+     *
+     * @var string
+     */
     protected $middlewareTags = [];
 
     /**
-    * Cache used for the given route
-    * Mostly this cache is applied to http GET type
-    *
-    * @var array
-    */
+     * Cache used for the given route
+     * Mostly this cache is applied to http GET type
+     *
+     * @var array
+     */
     protected $cacheSettings = [
         'enable' => false,
         'lifetime' => 3600
     ];
     
     /**
-    * Constructor
-    *
-    */
+     * Constructor
+     *
+     */
     public function __construct()
     {
         if (!empty(\Config::get('app.base_url'))) {
             $baseUrl =  '/' . trim(\Config::get('app.base_url'), '/');
             $this->baseUrl = $baseUrl == '/' ? '' : $baseUrl;
         }
-
-        $this->controllerPath = APP_PATH . '/controllers/';
     }
     
     /**
-    * Parses url string
-    *
-    * @param string $uri
-    * @param string $httpMethod
-    * 
-    * @throws RouteException
-    * 
-    * @return boolean
-    */
+     * Parses url string
+     *
+     * @param string $uri
+     * @param string $httpMethod
+     * 
+     * @throws RouteException
+     * 
+     * @return boolean
+     */
     public function parseUrl($uri, $httpRequestMethod)
     {
         // default param
         $action  = '';
+        $module = '';
         $pattern = str_replace(
             ['/', '.', ',', ';'], 
             ['\\/', '\\.', '\\,', '\\;'], 
@@ -219,22 +215,55 @@ class Router
         
         if (count($uriElements) > 0) {
             $controller = array_shift($uriElements);
-            $controller = ucfirst(strtolower($controller));
 
-            if (is_dir($this->controllerPath . $controller)) {
-                if (count($uriElements) > 0) {
-                    $this->controller = $controller . '\\' . ucfirst(array_shift($uriElements)) .'Controller';
-                } else {
-                    $this->controller = $controller . '\IndexController';
-                }
-
-                $this->module = $controller;
+            if (preg_match('#\[(.+)\]#', $controller, $matches)) {
+                $this->controller = 'Modules\\' . ucfirst(strtolower($matches[1]));
+                $this->moduleName = ucfirst(strtolower($matches[1]));
+                $controllerPath = APP_PATH . DIRECTORY_SEPARATOR 
+                    . 'modules' . DIRECTORY_SEPARATOR 
+                    . $matches[1] . DIRECTORY_SEPARATOR
+                    . $this->controllerDir . DIRECTORY_SEPARATOR;
             } else {
-                $this->controller = $controller . 'Controller';
+                $this->controller = ucfirst(strtolower($controller));
+                $controllerPath = APP_PATH . DIRECTORY_SEPARATOR 
+                    . $this->controllerDir . DIRECTORY_SEPARATOR;
+            }
 
-                if (!file_exists($this->controllerPath.$this->controller . '.php')) {
-                    $this->controller = 'IndexController';
-                    $action = $controller;
+            $isFoundController = false;
+
+            if (file_exists($controllerPath . $this->controller . 'Controller.php')) {
+                $this->controller .= 'Controller';
+                $isFoundController = true;
+
+                if (!count($uriElements)) {
+                    $action = $this->action;
+                }
+            } else {
+                while (count($uriElements) > 0) {
+                    $partName  = array_shift($uriElements);
+                    $controllerPath .= ucfirst(strtolower($partName));
+
+                    if (is_dir($controllerPath)) {
+                        $controllerPath .= DIRECTORY_SEPARATOR;
+                        $this->controller .= '\\' . ucfirst(strtolower($partName));
+                        continue;
+                    } elseif (file_exists($controllerPath . 'Controller.php')) {
+                        $this->controller .= '\\' . ucfirst(strtolower($partName)) . 'Controller';
+                        $isFoundController = true;
+                        break;
+                    } else {
+                        array_unshift($uriElements, $partName);
+                        break;
+                    }
+                }
+            }
+
+            if (!$isFoundController) {
+                if (count($uriElements) > 0) {
+                    $partName  = array_shift($uriElements);
+                    $this->controller .= '\\' . ucfirst(strtolower($partName)) . 'Controller';
+                } else {
+                    $this->controller .= 'Controller.php';
                 }
             }
                
@@ -271,59 +300,76 @@ class Router
             } else {
                 $this->params['page'] = $action;
             }
+        } else {
+            throw new RouteException(
+                'Key "action" is empty. Please define properly "action" in route.php'
+            );
         }
 
-        $this->params['pageid']  = md5($this->params['lang'] . $this->controller . $this->action . $this->params['page']);
+        $this->params['module'] = $this->moduleName;
+
+        $this->params['pageid'] = md5($this->params['lang'] . $this->controller . $this->action 
+            . $this->params['page'] . $this->params['module']);
         
         return true;
     }
     
     /**
-    * Get base url (relative)
-    *
-    * @return string
-    */
+     * Get base url (relative)
+     *
+     * @return string
+     */
     public function getBaseUrl()
     {
         return $this->baseUrl;
     }
 
     /**
-    * Get middleware name array applied to given route
-    *
-    * @return array
-    */
+     * Get module name
+     *
+     * @return string
+     */
+    public function getModuleName()
+    {
+        return $this->moduleName;
+    }
+
+    /**
+     * Get middleware name array applied to given route
+     *
+     * @return array
+     */
     public function getMiddlewareTags()
     {
         return $this->middlewareTags;
     }
 
     /**
-    * Get HTTP method applied to given route
-    *
-    * @return string
-    */
+     * Get HTTP method applied to given route
+     *
+     * @return string
+     */
     public function getHttpMethod()
     {
         return $this->httpMethod;
     }
 
     /**
-    * Get cache settings for the given route
-    *
-    * @return array
-    */
+     * Get cache settings for the given route
+     *
+     * @return array
+     */
     public function getCacheSettings()
     {
         return $this->cacheSettings;
     }
 
     /**
-    * Normalize middleware tag list to array
-    *
-    * @param string|array  $middlewareTags - comma separated tags or array
-    * @return array
-    */
+     * Normalize middleware tag list to array
+     *
+     * @param string|array  $middlewareTags - comma separated tags or array
+     * @return array
+     */
     protected function normalizeMiddlewareTags($middlewareTags)
     {
         return is_array($middlewareTags)
@@ -333,6 +379,6 @@ class Router
                     return trim($item);
                 }, 
                 explode(',', $middlewareTags)
-              );
+            );
     }
 }

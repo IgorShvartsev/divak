@@ -11,28 +11,28 @@ use \Db\PdoDriver;
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Manager
 {
     
     /**
-    * Connection pool
-    * 
-    * @var array
-    */
+     * Connection pool
+     * 
+     * @var array
+     */
     protected $pool = [];
     
     /**
-    * Connect to DB with given driver
-    * Succesful connection is added to Pool
-    *
-    * @param array $dbParams array DB credentials
-    * @param string $connectName connection name
-    * @param string $dbDriverName default is PDO
-    * 
-    * @throws DbException
-    */
+     * Connect to DB with given driver
+     * Succesful connection is added to Pool
+     *
+     * @param array $dbParams array DB credentials
+     * @param string $connectName connection name
+     * @param string $dbDriverName default is PDO
+     * 
+     * @throws DbException
+     */
     public function connect($dbParams, $connectName, $dbDriverName = null)
     {
         $params = [];
@@ -73,24 +73,24 @@ class Manager
     }
     
     /**
-    * Remove connection from Pool
-    *
-    * @param string $connectName
-    */
+     * Remove connection from Pool
+     *
+     * @param string $connectName
+     */
     public function disconnect($connectName)
     {
         unset($this->pool[$connectName]);
     }
     
     /**
-    * Retrieve connection from Pool
-    *
-    * @param string $connectName
-    * 
-    * @return object(driver)
-    * 
-    * @throws DbException
-    */
+     * Retrieve connection from Pool
+     *
+     * @param string $connectName
+     * 
+     * @return object(driver)
+     * 
+     * @throws DbException
+     */
     public function getConnection($connectName)
     {
         if (empty($this->pool[$connectName])) {
@@ -104,32 +104,32 @@ class Manager
     }
     
     /**
-    * Trace Pool for debug purpose
-    */
+     * Trace Pool for debug purpose
+     */
     public function tracePool()
     {
         \Debug::trace($this->pool);
     }
 
     /**
-    * Get DB driver
-    *
-    * @return string
-    */
+     * Get DB driver
+     *
+     * @return string
+     */
     public function getDefaultDriver()
     {
         return 'pdo';
     }
 
     /**
-    * PDO driver to connect to DB
-    *
-    * @param string $adapter mysql,sqlite, postgreSql ...
-    * @param string $host usually locallhost
-    * @param string $user user name
-    * @param string $password password
-    * @param string $database DB name
-    */
+     * PDO driver to connect to DB
+     *
+     * @param string $adapter mysql,sqlite, postgreSql ...
+     * @param string $host usually locallhost
+     * @param string $user user name
+     * @param string $password password
+     * @param string $database DB name
+     */
     protected function pdoDriver($adapter, $host, $user, $password, $database)
     {
         $dbh = $adapter == 'sqlight' 
@@ -137,7 +137,7 @@ class Manager
             : new \PDO($adapter . ':dbname=' . $database . ';host=' . $host, $user, $password);
             
         $dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $query = "SET NAMES UTF8";
+        $query = 'SET NAMES UTF8';
         $dbh->exec($query);
 
         return new PdoDriver($dbh);

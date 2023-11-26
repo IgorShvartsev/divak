@@ -10,22 +10,22 @@ use \Kernel\Container\PimpleContainerDriver;
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Container
 {
     /**
-    * @var \Kernel\Container\ContainerInterface
-    */
+     * @var \Kernel\Container\ContainerInterface
+     */
     protected $containerDriver;
 
     /**
-    * Init container with given container driver from third part
-    *
-    * @param string $containerDriveName - must be defined here method as create[NAME]ContainerDriver
-    * 
-    * @throws KernelException
-    */
+     * Init container with given container driver from third part
+     *
+     * @param string $containerDriveName - must be defined here method as create[NAME]ContainerDriver
+     * 
+     * @throws KernelException
+     */
     public function initContainer($containerDriverName = null)
     {
         if (!$containerDriverName) {
@@ -42,27 +42,27 @@ class Container
     }
 
     /**
-    * Get default container driver
-    *
-    * @return string
-    */
+     * Get default container driver
+     *
+     * @return string
+     */
     public function getDefaultContainerDriver()
     {
         return 'Pimple';
     }
 
     /**
-    *  Debug container
-    */
+     *  Debug container
+     */
     public function traceContainer()
     {
         echo '<pre>' . print_r($this->containerDriver, true) . '</pre>';
     }
 
     /**
-    * Create Pimple container driver
-    *
-    */
+     * Create Pimple container driver
+     *
+     */
     protected function createPimpleContainerDriver()
     {
         $this->containerDriver = (new \Resolver)->resolve(PimpleContainerDriver::class);

@@ -5,6 +5,7 @@ class IndexController extends \Controller
 {
     public function index()
     {
-        echo 'Admin';
+        $data = ['title' => 'Here is Admin page'];
+        $this->render($data);
     }
 }

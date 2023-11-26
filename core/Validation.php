@@ -5,7 +5,7 @@
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Validation
 {
@@ -13,7 +13,7 @@ class Validation
      * Minimum Length.
      *
      * @param string $str
-     * @param value $val
+     * @param int $val
      *
      * @return bool
      */
@@ -34,7 +34,7 @@ class Validation
      * Max Length.
      *
      * @param string $str
-     * @param value $val
+     * @param int $val
      *
      * @return bool
      */
@@ -55,7 +55,7 @@ class Validation
      * Exact Length.
      *
      * @param string $str
-     * @param value $val
+     * @param int $val
      *
      * @return bool
      */

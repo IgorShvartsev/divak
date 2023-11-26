@@ -9,3 +9,5 @@
 /storage/
 /config/
 /public/.htaccess
+/public/error_log
+/public/access_log

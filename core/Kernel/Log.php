@@ -6,7 +6,7 @@ namespace Kernel;
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Log
 {
@@ -79,7 +79,7 @@ class Log
             
             return $this->lastUpdated ? false : true;
         } else {
-            $this->error = "File " . $this->logfile . "can't be created or not found";
+            $this->error = 'File ' . $this->logfile . ' can\'t be created or not found';
         }
 
         return false;
@@ -101,19 +101,19 @@ class Log
                 $type = 'Info';
                 break; 
             case 'status':
-                $type = "Status";
+                $type = 'Status';
                 break;
             case 'notify':
-                $type = "Notification";
+                $type = 'Notification';
                 break;
             case 'system':
-                $type = "System";
+                $type = 'System';
                 break;
             case 'error':
-                $type = "Error";
+                $type = 'Error';
                 break;
             case 'fatal':
-                $type = "Fatal";
+                $type = 'Fatal';
                 break;
             
             default:

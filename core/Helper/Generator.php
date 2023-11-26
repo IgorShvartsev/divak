@@ -6,7 +6,7 @@ namespace Helper;
  * 
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Generator 
 {
@@ -70,7 +70,7 @@ class Generator
             $charSet = $charSetArray[$charSetIdx];
             $charSetLength = strlen($charSet);
             $charIndex = rand(0, $charSetLength - 1);
-            $buf[] = $charSet{$charIndex}; 
+            $buf[] = $charSet[$charIndex]; 
         }
 
         $result = implode('', $buf);

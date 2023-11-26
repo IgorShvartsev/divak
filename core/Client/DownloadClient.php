@@ -6,12 +6,12 @@ namespace Client;
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class StreamDownloadClient
 {
     /**
-     * @var resource handle;
+     * @var resource;
      */
     protected $handle;
 

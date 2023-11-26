@@ -24,19 +24,14 @@ if (!function_exists('filter_input_custom')) {
                 } else {
                     return '';
                 }
-                break;
-
             case INPUT_ENV:
                 if (isset($_ENV[$variableName])) {
                     return filter_var($_ENV[$variableName], $filter, $options);
                 } else {
                     return '';
                 }
-                break;
-
             default:
                 return filter_input($type, $variableName, $filter = FILTER_DEFAULT, $options);
-                break;
         }
     }
 }

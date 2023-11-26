@@ -5,7 +5,7 @@
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Controller
 {
@@ -22,7 +22,7 @@ class Controller
      */
     public function setOptions($options = [])
     {
-        while (list($name, $value) = each($options)) {
+        foreach ($options as $name => $value) {
             if (isset($this->$name) && is_string($name)) {
                 $this->$name = $value;
             }
@@ -57,7 +57,7 @@ class Controller
      *  @param bool $noController
      *  @param bool $return print or return rendered result
      * 
-     *  @return string in case when $return = true
+     *  @return string|null in case when $return = true
      */
     public function render($data = null, $template = null, $noController = false, $return = false)
     {

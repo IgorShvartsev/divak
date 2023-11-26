@@ -7,46 +7,46 @@ namespace Db;
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class PdoDriver extends \Db\DbAbstract
 {
     
     /**
-    * PDO Statement
-    * 
-    * @var object
-    */
+     * PDO Statement
+     * 
+     * @var object
+     */
     protected $sth;
     
     
     /**
-    * Constructor
-    * 
-    * @param PDO $pdo
-    */
+     * Constructor
+     * 
+     * @param \PDO $pdo
+     */
     public function __construct(\PDO $pdo)
     {
         parent::__construct($pdo);
     }
     
     /**
-    *  Get PDO instance
-    *
-    * @return object
-    */
+     *  Get PDO instance
+     *
+     * @return object
+     */
     public function getPdo()
     {
         return $this->dbh;
     }
     
     /**
-    * query
-    *
-    * @param string $query
-    * 
-    * @return PdoDriver
-    */
+     * query
+     *
+     * @param string $query
+     * 
+     * @return PdoDriver
+     */
     public function query($query)
     {
         $this->sth = $this->dbh->prepare($query);
@@ -56,13 +56,13 @@ class PdoDriver extends \Db\DbAbstract
     }
     
     /**
-    * fetch
-    *
-    * @param mixed $params
-    * @param numeric $mode returned values 0 - assoc array, 1 - object
-    * 
-    * @return object|array
-    */
+     * fetch
+     *
+     * @param mixed $params
+     * @param numeric $mode returned values 0 - assoc array, 1 - object
+     * 
+     * @return object|array|bool
+     */
     public function fetch($params = [], $mode = 0)
     {
         $mode = $mode ? \PDO::FETCH_OBJ : \PDO::FETCH_ASSOC;
@@ -81,13 +81,13 @@ class PdoDriver extends \Db\DbAbstract
     }
     
     /**
-    * fetchAll
-    *
-    * @param mixed $params
-    * @param numeric $mode returned values 0 - assoc array, 1 - object
-    * 
-    * @return object|array
-    */
+     * fetchAll
+     *
+     * @param mixed $params
+     * @param numeric $mode returned values 0 - assoc array, 1 - object
+     * 
+     * @return object|array|bool
+     */
     public function fetchAll($params = [], $mode = 0)
     {
         $mode = $mode ? \PDO::FETCH_OBJ : \PDO::FETCH_ASSOC;
@@ -105,12 +105,12 @@ class PdoDriver extends \Db\DbAbstract
     }
     
     /**
-    * execute
-    * 
-    * @param array $params
-    * 
-    * @return PdoDriver | false
-    */
+     * execute
+     * 
+     * @param array $params
+     * 
+     * @return PdoDriver | false
+     */
     public function execute($params = [])
     {
         if (!($this->sth instanceof \PDOStatement)) {
@@ -124,10 +124,10 @@ class PdoDriver extends \Db\DbAbstract
     }
     
     /**
-    * Get prepared tatement object
-    *
-    * @return  PDOStatement | false
-    */
+     * Get prepared tatement object
+     *
+     * @return  \PDOStatement | false
+     */
     public function getStatementObject()
     {
         if (!($this->sth instanceof \PDOStatement)) {
@@ -139,12 +139,12 @@ class PdoDriver extends \Db\DbAbstract
     }
     
     /**
-    * Set prepared statement object
-    *
-    * @param PDOStatement $sth
-    * 
-    * @return PdoDriver
-    */
+     * Set prepared statement object
+     *
+     * @param \PDOStatement $sth
+     * 
+     * @return PdoDriver
+     */
     public function setStatementObject(\PDOStatement $sth)
     {
         $this->sth = $sth;
@@ -153,22 +153,22 @@ class PdoDriver extends \Db\DbAbstract
     }
     
     /**
-    * Quotes target value
-    *
-    * @param string|int $value
-    * 
-    * @return string|int
-    */
+     * Quotes target value
+     *
+     * @param string|int $value
+     * 
+     * @return string|int
+     */
     public function quote($value)
     {
         return is_int($value) ? $value : $this->dbh->quote($value);
     }
     
     /**
-    * getLastInsertId
-    *
-    * @return last insertId
-    */
+     * getLastInsertId
+     *
+     * @return int insertId
+     */
     public function getLastInsertId()
     {
         return $this->dbh->lastInsertId();
@@ -177,7 +177,7 @@ class PdoDriver extends \Db\DbAbstract
     /**
     * getLastQuery
     * 
-    * @return last query string
+    * @return string query string
     */
     public function getLastQuery()
     {

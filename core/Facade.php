@@ -6,7 +6,7 @@
  *
  * @author  Igor Shvartsev(igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Facade
 {
@@ -14,7 +14,7 @@ class Facade
      * Returns object instance
      * Should be overriden
      *
-     * @return Object
+     * @return object
      * 
      * @throws RuntimeException
      */
@@ -35,6 +35,6 @@ class Facade
     {
         $instance = static::getObjectInstance();
         
-        return call_user_func_array(array($instance, $method), $args);
+        return call_user_func_array([$instance, $method], $args);
     }
 }

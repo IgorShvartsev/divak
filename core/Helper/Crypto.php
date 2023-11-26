@@ -6,7 +6,7 @@ namespace Helper;
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Crypto
 {   
@@ -29,24 +29,24 @@ class Crypto
     protected static $idLength = 36;
 
     /**
-    * Hash 
-    * 
-    * @param string $string
-    * 
-    * @return string encoded
-    */
+     * Hash 
+     * 
+     * @param string $string
+     * 
+     * @return string encoded
+     */
     public static function hash($string)
     {
         return hash(static::$algo, $string);
     }
 
     /**
-    * Encrypt string
-    *
-    * @param string $string
-    * 
-    * @return string
-    */
+     * Encrypt string
+     *
+     * @param string $string
+     * 
+     * @return string
+     */
     public static function encrypt($string)
     {
         if (static::$allowed) {
@@ -65,12 +65,12 @@ class Crypto
     }
 
     /**
-    * Decrypt string
-    *
-    * @param string $string
-    * 
-    * @return string | false
-    */
+     * Decrypt string
+     *
+     * @param string $string
+     * 
+     * @return string | false
+     */
     public static function decrypt($string)
     {
         $result = false;
@@ -107,12 +107,12 @@ class Crypto
     }
 
     /**
-    * Generate key
-    *
-    * @return string
-    * 
-    * @throws RuntimeException
-    */
+     * Generate key
+     *
+     * @return string
+     * 
+     * @throws \RuntimeException
+     */
     protected static function generateKey()
     {
         $key = static::$secretKey;
@@ -141,10 +141,10 @@ class Crypto
     } 
 
     /**
-    * Get iv length in bytes depending on using  the encrypt method
-    *
-    * @return int
-    */
+     * Get iv length in bytes depending on using  the encrypt method
+     *
+     * @return int
+     */
     protected static function ivByteLength()
     {
         return openssl_cipher_iv_length(static::$encryptMethod);

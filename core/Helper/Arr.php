@@ -6,7 +6,7 @@ namespace Helper;
  * 
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Arr
 {
@@ -47,13 +47,13 @@ class Arr
     }
 
     /**
-    * Set value into array on key path specified by "dot" notation
-    *
-    * @param array $array
-    * @param string $dottedKey
-    * @param mixed $value
-    *
-    */
+     * Set value into array on key path specified by "dot" notation
+     *
+     * @param array $array
+     * @param string $dottedKey
+     * @param mixed $value
+     *
+     */
     public static function set(array &$array, $dottedKey, $value)
     {
         $keys = explode('.', $dottedKey);
@@ -70,14 +70,14 @@ class Arr
     }
 
     /**
-    * Find key from multidimensional array
-    *
-    * @param array $array
-    * @param string $field
-    * @param mixed $value
-    *
-    * @return string | null 
-    */
+     * Find key from multidimensional array
+     *
+     * @param array $array
+     * @param string $field
+     * @param mixed $value
+     *
+     * @return string | null 
+     */
     public static function findKey(array $array, $field, $value)
     {
         foreach ($array as $key => $row) {
@@ -90,14 +90,14 @@ class Arr
     }
 
     /**
-    * Array to file 
-    * 
-    * @param array $array
-    * @param string $filePath where to save PHP formatted array
-    * @param int $level this parameter only for inner recursion, don't use it
-    *
-    * @return bool if array succesfully saved into file
-    */
+     * Array to file 
+     * 
+     * @param array $array
+     * @param string $filePath where to save PHP formatted array
+     * @param int $level this parameter only for inner recursion, don't use it
+     *
+     * @return bool if array succesfully saved into file
+     */
     public static function arrayToFile(array $array, $filePath, $level = 0)
     {
         $level = (int)$level;
@@ -158,8 +158,8 @@ class Arr
             $result = "<?php  \nreturn [\n" . $result . "];";
 
             return file_put_contents($filePath, $result);
-        } else {
-            return $result;
         }
+            
+        return false;
     }
 }

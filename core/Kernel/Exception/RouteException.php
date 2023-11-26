@@ -6,6 +6,6 @@ namespace Kernel\Exception;
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class RouteException extends \RuntimeException{}

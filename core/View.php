@@ -5,70 +5,77 @@
  *
  * @author Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class View
 {
     /**
      * Layout name.
      *
-     * @var string $layout
+     * @var string
      */
     protected $layout;
 
     /**
+     * Layout name.
+     *
+     * @var string
+     */
+    protected $layoutPath = APP_PATH . '/views/';
+
+    /**
      * Page name.
      *
-     * @var string $page
+     * @var string
      */
     protected $page;
 
     /**
      * Controller name.
      *
-     * @var string $controller
+     * @var string
      */
     protected $controller;
 
     /**
      * View folder path.
      *
-     * @var string $viewPath
+     * @var string
      */
     protected $viewPath;
 
     /**
      * Use controler name in view path or not.
      *
-     * @var bool $noController
+     * @var bool
      */
     protected $noController;
 
     /**
      * Language.
      *
-     * @var string $lang
+     * @var string
      */
     protected $lang;
 
     /**
      * Base Url.
      *
-     * @var string $baseUrl
+     * @var string
      */
     protected $baseUrl = '/';
 
     /**
      * Template data to be view.
      *
-     * @var array $templateData
+     * @var array
      */
     protected $templateData = [];
 
     /**
      * Template data stack
      * 
-     * @var array $templateDataStack
+     * @var array
      */ 
     protected $templateDataStack = [];
 
@@ -78,16 +85,24 @@ class View
      * @param string $controller
      * @param string $layout
      * @param string $page
-     * @param mixed $lang
+     * @param string $lang
+     * @param string $moduleName
      */
-    public function __construct($controller = 'index', $layout = null, $page = null, $lang = '')
+    public function __construct($controller = 'index', $layout = '', $page = '', $lang = '', $moduleName = '')
     {
         $this->layout = $layout;
         $this->page = $page;
         $this->controller = $controller;
-        $this->viewPath = APP_PATH . '/views/';
+        
+        if (!empty($moduleName)) {
+            $this->viewPath = APP_PATH . '/modules/' . ucfirst($moduleName) . '/views/';
+        } else {
+            $this->viewPath = APP_PATH . '/views/';
+        }
+
         $this->lang = $lang;
         $baseUrl = \Config::get('app.base_url');
+        
         if (!empty($baseUrl)) {
             $this->baseUrl = $baseUrl;
         }
@@ -176,13 +191,21 @@ class View
     {
         $this->layout = $layout;
     }
+    
+    /**
+     * Set layout path.
+     *
+     * @param string $layout
+     */
+    public function setLayoutPath($layoutPath)
+    {
+        $this->layoutPath = $layoutPath;
+    }
 
     /**
      * Set base url (relative).
      *
      * @param mixed $baseUrl
-     *
-     * @return string
      */
     public function setBaseUrl($baseUrl)
     {
@@ -385,9 +408,9 @@ class View
         extract($this->templateData);
 
         if ($this->layout) {
-            if (file_exists($this->viewPath . $this->layout . '.phtml')) {
+            if (file_exists($this->layoutPath . $this->layout . '.phtml')) {
                 ob_start();
-                include_once $this->viewPath . $this->layout . '.phtml';
+                include_once $this->layoutPath . $this->layout . '.phtml';
                 $out = ob_get_clean();
 
                 return $out;

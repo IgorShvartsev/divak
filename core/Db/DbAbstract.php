@@ -3,36 +3,36 @@
 namespace Db;
 
 /**
-*  Db Abstract class
-*
-* @author  Igor Shvartsev (igor.shvartsev@gmail.com)
-* @package Divak
-* @version 1.1
-*/
+ *  Db Abstract class
+ *
+ * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
+ * @package Divak
+ * @version 1.2
+ */
 abstract class DbAbstract
 {
     const SQL_TYPE_INSERT = 0;
     const SQL_TYPE_UPDATE = 1;
    
     /**
-    * DB handler
-    * 
-    * @var object
-    */
+     * DB handler
+     * 
+     * @var object
+     */
     protected $dbh;
   
     
     /**
-    * Last query string
-    * 
-    * @var string
-    */
+     * Last query string
+     * 
+     * @var string
+     */
     protected $lastquery = '';
     
     /**
-    * Constructor
-    * 
-    */
+     * Constructor
+     * 
+     */
     public function __construct($dbh)
     {
         $this->dbh = $dbh;
@@ -40,61 +40,61 @@ abstract class DbAbstract
     
     
     /**
-    * query
-    *
-    * @param string $query
-    */
+     * query
+     *
+     * @param string $query
+     */
     abstract public function query($query);
     
     /**
-    * fetch
-    *
-    * @param mixed $params
-    * @param numeric $mode returned values 0 - assoc array, 1 - object
-    * 
-    * @return object|array
-    */
+     * fetch
+     *
+     * @param mixed $params
+     * @param numeric $mode returned values 0 - assoc array, 1 - object
+     * 
+     * @return object|array
+     */
     abstract public function fetch($params = [], $mode = 0);
     
     /**
-    * fetchAll
-    *
-    * @param mixed $params
-    * @param numeric $mode returned values 0 - assoc array, 1 - object
-    * 
-    * @return object|array
-    */
+     * fetchAll
+     *
+     * @param mixed $params
+     * @param numeric $mode returned values 0 - assoc array, 1 - object
+     * 
+     * @return object|array
+     */
     abstract public function fetchAll($params = [], $mode = 0);
     
     /**
-    * execute
-    * 
-    * @param array $params
-    */
+     * execute
+     * 
+     * @param array $params
+     */
     abstract public function execute($params = []);
     
     /**
-    * Quotes target value
-    *
-    * @param string|int $value
-    * 
-    * @return string|int
-    */
+     * Quotes target value
+     *
+     * @param string|int $value
+     * 
+     * @return string|int
+     */
     abstract public function quote($value);
     
     
     /**
-    * getLastInsertId
-    *
-    * @return last insertId
-    */
+     * getLastInsertId
+     *
+     * @return int insertId
+     */
     abstract public function getLastInsertId();
     
     /**
-    * getLastQuery
-    * 
-    * @return last query string
-    */
+     * getLastQuery
+     * 
+     * @return string query string
+     */
     public function getLastQuery()
     {
         return $this->lastquery;
@@ -102,16 +102,16 @@ abstract class DbAbstract
     
     
     /**
-    * Prepares sql for execution using data in array to be inserted or updated
-    * Result looks like  INSERT INTO table (column1, column2,...) VALUES (?, ?, ...)
-    * or UPDATE table SET column1 = ?, column2 = ?, .....
-    *
-    * @param string $table table name
-    * @param array $data
-    * @param int $sqlType 0 - insert sql,  1 - update sql
-    * 
-    * @return string
-    */
+     * Prepares sql for execution using data in array to be inserted or updated
+     * Result looks like  INSERT INTO table (column1, column2,...) VALUES (?, ?, ...)
+     * or UPDATE table SET column1 = ?, column2 = ?, .....
+     *
+     * @param string $table table name
+     * @param array $data
+     * @param int $sqlType 0 - insert sql,  1 - update sql
+     * 
+     * @return string
+     */
     public function prepareSqlFromArray($table, $data, $sqlType = 0)
     {
         $sql = '';
@@ -141,7 +141,7 @@ abstract class DbAbstract
             }, $columns, $parameters);
             $sql = "UPDATE $table SET " . implode(',', $updateData);
         } else {
-            trigger_error("SQL type is not defined");
+            trigger_error('SQL type is not defined');
         }
         
         return  $sql;

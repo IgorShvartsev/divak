@@ -8,7 +8,7 @@ use \Kernel\Exception\KernelException;
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class MiddlewareManager
 {
@@ -22,14 +22,14 @@ class MiddlewareManager
      * 
      * @var array
      */
-    protected $before;
+    protected $before = [];
 
     /**
      * Middleware list after application handling
      * 
      * @var array
      */
-    protected $after;
+    protected $after = [];
 
     /**
      * Constructor

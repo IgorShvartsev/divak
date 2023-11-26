@@ -6,7 +6,7 @@ use Cache\Exception\CacheException;
  *
  *  @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  *
- *  @version 1.1
+ *  @version 1.2
  */
 class Cache
 {
@@ -20,12 +20,12 @@ class Cache
      *
      * @return Cache\CacheAbstract
      * 
-     * @throws CacheExeption
+     * @throws CacheException
      */
     public static function factory($type, $options = [])
     {
         if (empty($type)) {
-            throw new CacheExeption('Cache type is empty.');
+            throw new CacheException('Cache type is empty.');
         }
 
         $class = '\Cache\Cache' . $type;

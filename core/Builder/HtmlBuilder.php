@@ -6,12 +6,12 @@ namespace Builder;
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class HtmlBuilder
 {
     /** 
-     * @var string $html
+     * @var string
      *
      */
     protected $html = '';

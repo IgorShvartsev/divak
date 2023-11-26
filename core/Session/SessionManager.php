@@ -6,23 +6,23 @@ namespace Session;
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class SessionManager
 {
     /**
-    * @var SessionHandlerInterface
-    */
+     * @var SessionHandlerInterface
+     */
     protected static $handler;
 
     /**
-    * Set session handler
-    *
-    * @param string $type
-    * @param array $options
-    * 
-    * @throws RuntimeException
-    */
+     * Set session handler
+     *
+     * @param string $type
+     * @param array $options
+     * 
+     * @throws RuntimeException
+     */
     public static function setHandler($type = 'file', $options = [])
     {
         $handleClass = '\\Session\\Handler\\' . ucfirst($type) . 'Handler';

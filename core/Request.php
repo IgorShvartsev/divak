@@ -6,14 +6,14 @@
  * 
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Request extends \Facade
 {   
     /**
      * Returns object instance
      *
-     * @return Object
+     * @return object
      */
     public static function getObjectInstance()
     {

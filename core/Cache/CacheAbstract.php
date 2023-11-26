@@ -6,7 +6,7 @@ namespace Cache;
  *
  * @author Igor Shvartsev (igor.shvartsev@gmail.com)
  *
- * @version 1.1
+ * @version 1.2
  */
 abstract class CacheAbstract
 {
@@ -32,9 +32,9 @@ abstract class CacheAbstract
      *
      * @param array $options
      */
-    public function __construct($options = [])
+    public function __construct(array $options = [])
     {
-        while (list($name, $value) = each($options)) {
+        foreach ($options as $name => $value) {
             $this->setOption($name, $value);
         }
     }
@@ -95,50 +95,52 @@ abstract class CacheAbstract
     }
 
     /**
-    * Load cached content
-    *
-    * @param string $id
-    * @param boolean $doNotTestCacheValidity
-    * @return mixed
-    */
+     * Load cached content
+     *
+     * @param string $id
+     * @param boolean $doNotTestCacheValidity
+     * @return mixed
+     */
     public function load($id, $doNotTestCacheValidity = false)
     {
     }
 
     /**
-    * Test cache on availability ID
-    *
-    * @param string $id
-    * @return boolean
-    */
+     * Test cache on availability ID
+     *
+     * @param string $id
+     * @return boolean
+     */
     public function test($id)
     {
+        return false;
     }
 
     /**
-    * Save data into cache by ID
-    * 
-    * @param mixed $data
-    * @param string $id
-    */
+     * Save data into cache by ID
+     * 
+     * @param mixed $data
+     * @param string $id
+     */
     public function save($data, $id)
     {
     }
 
     /**
-    * Remove cached data by ID
-    *
-    * @param string $id
-    * @return boolean
-    */
+     * Remove cached data by ID
+     *
+     * @param string $id
+     * @return boolean
+     */
     public function remove($id)
     {
+        return false;
     }
 
     /**
-    * Clean cache
-    *
-    */
+     * Clean cache
+     *
+     */
     public function clean()
     {
     }

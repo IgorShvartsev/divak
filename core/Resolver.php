@@ -5,7 +5,7 @@
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Resolver
 {
@@ -16,7 +16,7 @@ class Resolver
      * 
      * @return mixed
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function resolve($class)
     {
@@ -50,12 +50,14 @@ class Resolver
         $dependencies = [];
 
         foreach ($parameters as $parameter) {
-            $dependency = $parameter->getClass();
+            $dependency = $parameter->getType();
 
             if (is_null($dependency)) {
                 $dependencies[] = $this->resolveNonClass($parameter);
             } else {
-                $dependencies[] = $this->resolve($dependency->name);
+                if (!$dependency->isBuiltin()) {
+                    $dependencies[] = $this->resolve($dependency->getName());
+                }
             }
         }
 

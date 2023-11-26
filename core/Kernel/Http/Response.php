@@ -6,7 +6,7 @@ namespace Kernel\Http;
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Response
 {
@@ -82,10 +82,10 @@ class Response
     ];
     
     /**
-    * Get object instance
-    *
-    * @return \Response
-    */
+     * Get object instance
+     *
+     * @return \Response
+     */
     public static function getInstance()
     {
         if (!self::$instance) {
@@ -105,10 +105,10 @@ class Response
     }
 
     /**
-    * Set response header with code
-    *
-    * @param int $code
-    */
+     * Set response header with code
+     *
+     * @param int $code
+     */
     public function responseCodeHeader($code)
     {
         $sapi_name = php_sapi_name();
@@ -123,12 +123,12 @@ class Response
     }
 
     /**
-    * Get response code description
-    *
-    * @param int $code
-    * 
-    * @return string;
-    */
+     * Get response code description
+     *
+     * @param int $code
+     * 
+     * @return string;
+     */
     public function getResponseCodeDescription($code)
     {
         if (isset($this->codes[$code])) {
@@ -140,11 +140,11 @@ class Response
     }
 
     /**
-    * Set header
-    *
-    * @param string $key
-    * @param string $value
-    */
+     * Set header
+     *
+     * @param string $key
+     * @param string $value
+     */
     public function setHeader($key, $value)
     {
         $key = str_replace('_', '-', strtolower($key));
@@ -152,12 +152,12 @@ class Response
     }
 
     /**
-    * Get header entry
-    *
-    * @param string $key
-    * 
-    * @return string
-    */
+     * Get header entry
+     *
+     * @param string $key
+     * 
+     * @return string
+     */
     public function getHeader($key)
     {
         $key = str_replace('_', '-', strtolower($key));
@@ -166,10 +166,10 @@ class Response
     }
 
     /**
-    * Set array of headers
-    *
-    * @param array $headers
-    */
+     * Set array of headers
+     *
+     * @param array $headers
+     */
     public function setHeaders($headers)
     {
         foreach ($headers as $key => $val) {
@@ -188,16 +188,16 @@ class Response
     }
 
     /**
-    * Set cookie
-    *
-    * @param string $name
-    * @param string $value
-    * @param int $expire
-    * @param string $path
-    * @param string $domain
-    * @param boolean $secure
-    * @param boolean $httponly
-    */
+     * Set cookie
+     *
+     * @param string $name
+     * @param string $value
+     * @param int $expire
+     * @param string $path
+     * @param string $domain
+     * @param boolean $secure
+     * @param boolean $httponly
+     */
     public function setCookie(
         $name, 
         $value, 
@@ -213,38 +213,38 @@ class Response
     }
 
     /**
-    * Get all cookies to be send
-    *
-    * @return array
-    */
+     * Get all cookies to be send
+     *
+     * @return array
+     */
     public function getCookies()
     {
         return $this->cookies;
     }
 
     /**
-    * Set rendered content into response body
-    *
-    * @param string $content
-    */
+     * Set rendered content into response body
+     *
+     * @param string $content
+     */
     public function setBody($content)
     {
         $this->body[] = $content;
     }
 
     /**
-    * Get body
-    *
-    * @return array
-    */
+     * Get body
+     *
+     * @return array
+     */
     public function getBody()
     {
         return $this->body;
     }
 
     /**
-    * Set content body as JSON
-    */
+     * Set content body as JSON
+     */
     public function json($content)
     {
         if (is_array($content)) {
@@ -256,10 +256,10 @@ class Response
     }
 
     /**
-    * Redirects
-    *
-    * @param string $url
-    */
+     * Redirects
+     *
+     * @param string $url
+     */
     public function redirect($url = null)
     {
         $this->responseCodeHeader(301);

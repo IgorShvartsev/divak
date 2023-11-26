@@ -2,27 +2,34 @@
 
 namespace Db;
 
+use \Db\Exception\DbException;
+
 /**
  * PDO Model class
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class PdoModel extends \Db\PdoDriver
 {
     /**
-    * Table name
-    *
-    * @var string
-    */
+     * Table name
+     *
+     * @var string
+     */
     public $table;
 
     /**
-    *  Constructor
-    *
-    * @param  \PDO  - we dont use parameter hint \PDO to avoid error in resolving DI
-    */
+     * @var array
+     */
+    protected $fields;
+
+    /**
+     *  Constructor
+     *
+     * @param  \PDO  - we dont use parameter hint \PDO to avoid error in resolving DI
+     */
     public function __construct($pdo = null)
     {
         if (!$pdo) {
@@ -63,12 +70,12 @@ class PdoModel extends \Db\PdoDriver
      * 
      * @param mixed $id
      * 
-     * @return boolean
+     * @return bool
      */ 
     public function delete($id)
     {
         if (empty($id)) {
-            return; 
+            return false; 
         }
 
         if (empty($this->table)) {
@@ -113,13 +120,13 @@ class PdoModel extends \Db\PdoDriver
     }
 
     /**
-    * update
-    *
-    * @param array $hash array of pairs field=>value
-    * @param array $where where clause array joined with AND , key can contain <,>,!=, = at the end of field name
-    * 
-    * @return boolean
-    */
+     * update
+     *
+     * @param array $hash array of pairs field=>value
+     * @param array $where where clause array joined with AND , key can contain <,>,!=, = at the end of field name
+     * 
+     * @return bool
+     */
     public function update($hash = [], $where = [])
     {
         if (!count($hash) || !count($where)) {
@@ -129,7 +136,7 @@ class PdoModel extends \Db\PdoDriver
         $keys = array_keys($hash);
         
         foreach ($keys as $idx => $key) {
-            $keys[$idx] = "`" . $key . "`";
+            $keys[$idx] = '`' . $key . '`';
         }
         
         $keys = join(' = ? , ', $keys);
@@ -142,9 +149,9 @@ class PdoModel extends \Db\PdoDriver
                 $operator = $matches[0];
                 $f = str_replace($operator, '', $f);
                 $f = trim($f);
-                $whereKeys[] = "`" . $f . "` " . $operator . ' ? ';
+                $whereKeys[] = '`' . $f . '` ' . $operator . ' ? ';
             } else {
-                $whereKeys[] =  "`" . $f . "`" . ' = ? ';
+                $whereKeys[] =  '`' . $f . '`' . ' = ? ';
             }
         }
 
@@ -157,12 +164,12 @@ class PdoModel extends \Db\PdoDriver
     }
     
     /**
-    * insert
-    *
-    * @param mixed $hash - array of pairs field=>value
-    * 
-    * @return int
-    */
+     * insert
+     *
+     * @param mixed $hash - array of pairs field=>value
+     * 
+     * @return int
+     */
     public function insert($hash = [])
     {
         if (!count($hash)) {
@@ -172,7 +179,7 @@ class PdoModel extends \Db\PdoDriver
         $keys = array_keys($hash);
         
         foreach ($keys as $i => $v) {
-            $keys[$i] = "`$v`";
+            $keys[$i] = '`$v`';
         }
         
         $keys = join(', ',  $keys) ;
@@ -185,12 +192,12 @@ class PdoModel extends \Db\PdoDriver
     
   
     /**
-    * GeneratePlaceHolders
-    *
-    * @param int $count
-    * 
-    * @return string
-    */
+     * GeneratePlaceHolders
+     *
+     * @param int $count
+     * 
+     * @return string
+     */
     public function generatePlaceHolders($count)
     {
         return join(', ', array_fill(0, $count, '?')) ;

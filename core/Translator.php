@@ -5,22 +5,22 @@
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Translator
 {
     /**
-     * @var string $lang
+     * @var string
      */
     protected $lang = '';
 
     /**
-     * @var array $data
+     * @var array
      */
     protected $data = [];
 
     /**
-     * @var string $file
+     * @var string
      */
     protected $file;
 
@@ -33,7 +33,7 @@ class Translator
      *
      * @return Translator
      * 
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct($path, $lang, $fileext = 'php')
     {
@@ -49,7 +49,7 @@ class Translator
                 fclose($fp);
                 chmod($this->file, 0777);
             } else {
-                throw new \Exception("Could not open file $file");
+                throw new \Exception('Could not open file ' . $this->file);
             }
         }
 

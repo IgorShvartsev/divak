@@ -8,7 +8,7 @@ use Cache\Exception\CacheFileException;
  *
  * @author Igor Shvartsev (igor.shvartsev@gmail.com)
  *
- * @version 1.1
+ * @version 1.2
  */
 class CacheFile extends CacheAbstract
 {
@@ -72,13 +72,13 @@ class CacheFile extends CacheAbstract
     }
 
     /**
-    * Load cached content
-    *
-    * @param string $id
-    * @param boolean $doNotTestCacheValidity
-    * 
-    * @return mixed
-    */
+     * Load cached content
+     *
+     * @param string $id
+     * @param boolean $doNotTestCacheValidity
+     * 
+     * @return mixed
+     */
     public function load($id, $doNotTestCacheValidity = false)
     {
         if (!$this->test($id)) {
@@ -93,12 +93,12 @@ class CacheFile extends CacheAbstract
     }
 
     /**
-    * Test cache on availability ID
-    *
-    * @param string $id
-    * 
-    * @return boolean
-    */
+     * Test cache on availability ID
+     *
+     * @param string $id
+     * 
+     * @return boolean
+     */
     public function test($id)
     {
         $id = $this->hash($id, $this->options['control_type']);
@@ -115,11 +115,11 @@ class CacheFile extends CacheAbstract
     }
 
     /**
-    * Save data into cache by ID
-    * 
-    * @param mixed $data
-    * @param string $id
-    */
+     * Save data into cache by ID
+     * 
+     * @param mixed $data
+     * @param string $id
+     */
     public function save($data, $id)
     {
         $id = $this->hash($id, $this->options['control_type']);
@@ -128,12 +128,12 @@ class CacheFile extends CacheAbstract
     }
 
     /**
-    * Remove cached data by ID
-    *
-    * @param string $id
-    * 
-    * @return boolean
-    */
+     * Remove cached data by ID
+     *
+     * @param string $id
+     * 
+     * @return boolean
+     */
     public function remove($id)
     {
         $id = $this->hash($id, $this->options['control_type']);
@@ -142,10 +142,10 @@ class CacheFile extends CacheAbstract
     }
 
     /**
-    * Clean cache
-    *
-    * @return boolean
-    */
+     * Clean cache
+     *
+     * @return boolean
+     */
     public function clean()
     {
         $path = $this->options['cache_dir'];
@@ -189,7 +189,7 @@ class CacheFile extends CacheAbstract
      * @param string $data        Data
      * @param string $controlType Type of control 'md5', 'crc32' or 'strlen'
      *
-     * @throws CacheFuleException
+     * @throws CacheFileException
      *
      * @return string Control key
      */

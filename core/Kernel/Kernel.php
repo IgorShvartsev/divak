@@ -11,22 +11,26 @@ use \Kernel\Container\Container;
  *
  * @author Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Kernel extends Container
 {
-    /** @var Kernel\Kernel */
+    /** 
+     * @var \Kernel\Kernel 
+     */
     private static $instance;
 
-    /** @var boolean */
+    /** 
+     * @var boolean 
+     */
     private $run = false;
 
 
     /**
-    * Get instance of Kernel class
-    *
-    * @return Kernel\Kernel
-    */
+     * Get instance of Kernel class
+     *
+     * @return \Kernel\Kernel
+     */
     public static function getInstance()
     {
         if (!self::$instance) {
@@ -47,10 +51,10 @@ class Kernel extends Container
     }
 
     /**
-    * Run application
-    * 
-    * @param Closure $callback
-    */
+     * Run application
+     * 
+     * @param Closure $callback
+     */
     public function run(\Closure $callback = null)
     {
         if ($this->run) {
@@ -60,18 +64,26 @@ class Kernel extends Container
         $this->run = true;
 
         \Config::init();
-
         date_default_timezone_set(\Config::get('app.timezone'));
-        set_error_handler('\Kernel\Error::errorHandler');
-        set_exception_handler('\Kernel\Error::exceptionHandler');
         $this->bindCoreClasses();
 
+        if (!defined('CLI_MODE')) {
+            set_error_handler('\Kernel\Error::errorHandler');
+            set_exception_handler('\Kernel\Error::exceptionHandler');
+        }
+        
+        $this->initDbConnection();
+        
         if ($callback) {
             call_user_func_array($callback, [$this]);
         }
 
+        if (defined('CLI_MODE')) {
+            return;
+        }
+        
         $this->initSession($this->make(\Session::class), \Config::get('session'));
-        $this->initDbConnection();
+        $this->initEvents();
         $this->handleRequest();
         $this->dispatch();
     }
@@ -79,7 +91,7 @@ class Kernel extends Container
     /**
     * Initialize Session
     *
-    * @param Session $session
+    * @param \Session $session
     * @param [] $config
     */
     protected function initSession(\Session $session, array $config)
@@ -101,12 +113,18 @@ class Kernel extends Container
 
         $session->start($config['name']);
     }
+
+    protected function initEvents()
+    {
+        $eventDispatcher = $this->make(\Kernel\EventDispatcher::class);
+        $eventDispatcher->provide(\Config::get('event.provider'));
+    }
     
     /**
-    * Initialize Database connection
-    * 
-    * @throws KernelException
-    */
+     * Initialize Database connection
+     * 
+     * @throws KernelException
+     */
     protected function initDBConnection()
     {
         $config = \Config::get('database');
@@ -127,8 +145,8 @@ class Kernel extends Container
     }
     
     /**
-    * Bind core classes into service container
-    */
+     * Bind core classes into service container
+     */
     protected function bindCoreClasses()
     {
         $coreClasses = [
@@ -159,6 +177,11 @@ class Kernel extends Container
                 'type' => ContainerInterface::BIND_SHARE,
             ],
             [
+                'className' => \Kernel\EventDispatcher::class,             
+                'classImplementation' => '\Kernel\EventDispatcher',             
+                'type' => ContainerInterface::BIND_SHARE,
+            ],
+            [
                 'className' => \Controller::class,             
                 'classImplementation' => '\Controller',             
                 'type' => ContainerInterface::BIND_FACTORY,
@@ -174,16 +197,18 @@ class Kernel extends Container
             new \Kernel\Http\MiddlewareManager(\Config::get('middleware'))
         );
 
-        $this->bindInstance(
-            \Kernel\Log::class, 
-            new Log(STORAGE_PATH . '/log/log-' . date('Y-m-d') . '.txt')
-        );
+        if (defined('STORAGE_PATH')) {
+            $this->bindInstance(
+                \Kernel\Log::class, 
+                new Log(STORAGE_PATH . '/log/log-' . date('Y-m-d') . '.txt')
+            );
+        }
     }
 
     /**
-    * Handle resuest
-    *
-    */
+     * Handle resuest
+     *
+     */
     protected function handleRequest()
     {
         $request = $this->make(\Kernel\Http\Request::class);
@@ -233,10 +258,10 @@ class Kernel extends Container
     }
 
     /**
-    * Dispatch process
-    * 
-    * @throws ResponseException
-    */
+     * Dispatch process
+     * 
+     * @throws ResponseException
+     */
     protected function dispatch()
     {
         $request  = $this->make(\Kernel\Http\Request::class);
@@ -321,12 +346,12 @@ class Kernel extends Container
     }
 
     /**
-    * Tides input params
-    *
-    * @param mixed $input
-    * 
-    * @return string
-    */
+     * Tides input params
+     *
+     * @param mixed $input
+     * 
+     * @return string|array
+     */
     protected function tidyInput($input)
     {
         if (is_array($input)) {
@@ -394,11 +419,11 @@ class Kernel extends Container
     }
 
     /**
-    *  Launch Controller method
-    *
-    * @param \Controller
-    * @param \ReflectionMethod
-    */
+     *  Launch Controller method
+     *
+     * @param \Controller
+     * @param \ReflectionMethod
+     */
     protected function launchControlAction(\Controller $controller, \ReflectionMethod $method)
     {
         $cache = null;
@@ -443,12 +468,20 @@ class Kernel extends Container
                 str_replace('\\', '/', get_class($controller))
             )
         );
+
+        $moduleName = $router->getModuleName();
+
+        $controllerName = str_replace(
+            'modules/' . strtolower($moduleName) . '/',
+            '',
+            $controllerName
+        );
         
         $layout = !empty(\Config::get('app.default_layout')) ? \Config::get('app.default_layout') : null;
 
         // add \View object to controller
         $controller->setView(
-            new \View($controllerName, $layout, $router->action, $router->params['lang'])
+            new \View($controllerName, $layout, $router->action, $router->params['lang'], $moduleName)
         );
         
         $controller->view->setBaseUrl($router->getBaseUrl());
@@ -497,16 +530,16 @@ class Kernel extends Container
     }
 
     /**
-    * Get unique cache key
-    *
-    * @param \Http\Request $request
-    * @param \Session $session
-    * 
-    * @return string
-    */
+     * Get unique cache key
+     *
+     * @param \Kernel\Http\Request $request
+     * @param \Session $session
+     * 
+     * @return string
+     */
     protected function getCacheKey($request, $session)
     {
         return serialize($request->getParams())
-             . serialize($session->getAll());
+            . serialize($session->getAll());
     }
 }

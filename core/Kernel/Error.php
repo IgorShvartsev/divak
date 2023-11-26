@@ -6,7 +6,7 @@ namespace Kernel;
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Error
 {
@@ -40,9 +40,9 @@ class Error
      * 
      * @return boolean
      * 
-     * @throws ErrorException 
+     * @throws \ErrorException 
      */
-    public static function errorHandler($errno, $errstr, $errfile, $errline, $errcontext)
+    public static function errorHandler($errno, $errstr, $errfile, $errline, $errcontext = '')
     {
         $l = error_reporting();
 
@@ -78,7 +78,7 @@ class Error
     /**
      * Exception handler
      *
-     * @param Exception | Throwable $e
+     * @param \Exception|\Throwable $e
      */
     public static function exceptionHandler($e)
     {
@@ -104,9 +104,9 @@ class Error
             $e->getTraceAsString()
         );
 
-        if (get_class($e) == 'Kernel\Exception\ResponseException') {
+        if (get_class($e) === 'Kernel\Exception\ResponseException') {
             \Response::responseCodeHeader($e->getCode());
-        } elseif (get_class($e) == 'Kernel\Exception\KernelException' || get_class($e) === 'ErrorException') {
+        } elseif (get_class($e) === 'Kernel\Exception\KernelException' || get_class($e) === 'ErrorException') {
             \Response::responseCodeHeader(401);
         }
 

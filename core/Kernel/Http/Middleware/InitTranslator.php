@@ -10,14 +10,14 @@ use \Kernel\Exception\ResponseException;
 class InitTranslator
 {
     /**
-    * Middleware handle function
-    * Is called by Kernel
-    *
-    * @param \Kernel\Http\Request $request
-    * @param \Closure $next
-    * 
-    * @return \Kernel\Http\Response
-    */
+     * Middleware handle function
+     * Is called by Kernel
+     *
+     * @param \Kernel\Http\Request $request
+     * @param \Closure $next
+     * 
+     * @return \Kernel\Http\Response
+     */
     public function handle($request, \Closure $next)
     {
         $lang = $request->getParam('lang');
@@ -33,9 +33,9 @@ class InitTranslator
 
             \App::bindInstance(\Translator::class, $translator);
                
-                // very important to enable that to have oportunity to process non-english text
-                // by PHP multibyte string functions
-                mb_internal_encoding('UTF-8');
+            // very important to enable that to have oportunity to process non-english text
+            // by PHP multibyte string functions
+            mb_internal_encoding('UTF-8');
         } else {
             $response->responseCodeHeader(404);
             \View::quickRender('error', ['description' => 'Page Not Found']);

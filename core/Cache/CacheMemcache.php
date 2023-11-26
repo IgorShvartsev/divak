@@ -8,17 +8,17 @@ use Cache\Exception\CacheMemcacheException;
  *
  * @author Igor Shvartsev (igor.shvartsev@gmail.com)
  *
- * @version 1.1
+ * @version 1.2
  */
 class CacheMemcache extends CacheAbstract
 {
-    /** @var Memcache $memcache */
+    /** @var \Memcache */
     protected $memcache;
 
-    /** @var bollean $isConnection */
+    /** @var boolean */
     protected $isConnection = true;
 
-    /** @var array $config */
+    /** @var array */
     protected $config = [
         'host' => 'localhost',
         'port' => 11211,
@@ -47,7 +47,7 @@ class CacheMemcache extends CacheAbstract
             }
         }
 
-        $this->memcache = new Memcache();
+        $this->memcache = new \Memcache();
 
         if (!$this->memcache->connect($this->config['host'], $this->config['port'])) {
             $this->isConnection = false;
@@ -55,13 +55,13 @@ class CacheMemcache extends CacheAbstract
     }
 
     /**
-    * Load cached content
-    *
-    * @param string $id
-    * @param boolean $doNotTestCacheValidity
-    * 
-    * @return mixed
-    */
+     * Load cached content
+     *
+     * @param string $id
+     * @param boolean $doNotTestCacheValidity
+     * 
+     * @return mixed
+     */
     public function load($id, $doNotTestCacheValidity = false)
     {
         if (!$this->test($id)) {
@@ -75,12 +75,12 @@ class CacheMemcache extends CacheAbstract
     }
 
     /**
-    * Test cache on availability ID
-    *
-    * @param string $id
-    * 
-    * @return boolean
-    */
+     * Test cache on availability ID
+     *
+     * @param string $id
+     * 
+     * @return boolean
+     */
     public function test($id)
     {
         $key = $this->hash($id, $this->options['control_type']);
@@ -94,11 +94,11 @@ class CacheMemcache extends CacheAbstract
     }
 
     /**
-    * Save data into cache by ID
-    * 
-    * @param mixed $data
-    * @param string $id
-    */
+     * Save data into cache by ID
+     * 
+     * @param mixed $data
+     * @param string $id
+     */
     public function save($data, $id)
     {
         if (!$this->isConnection) {
@@ -110,12 +110,12 @@ class CacheMemcache extends CacheAbstract
     }
 
     /**
-    * Remove cached data by ID
-    *
-    * @param string $id
-    * 
-    * @return boolean
-    */
+     * Remove cached data by ID
+     *
+     * @param string $id
+     * 
+     * @return boolean
+     */
     public function remove($id)
     {
         if (!$this->isConnection) {
@@ -130,9 +130,9 @@ class CacheMemcache extends CacheAbstract
     }
 
     /**
-    * Clean cache
-    *
-    */
+     * Clean cache
+     *
+     */
     public function clean()
     {
         if (!$this->isConnection) {

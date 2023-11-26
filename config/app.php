@@ -2,50 +2,43 @@
 
 return [
     /**
-    * Base url (relative to the site root, f.e. http://example.com/tesing
-    * here base_url is /testing)
-    */
+     * Base url (relative to the site root, f.e. http://example.com/tesing
+     * here base_url is /testing)
+     */
     'base_url' => '',
 
     /**
-    * Site title
-    */
+     * Site title
+     */
     'title' => 'My Site',
 
 
     /**
-    * Default layout 
-    * This is a file name without extension .tpl
-    * (file should be created in app/view folder )
-    */
+     * Default layout 
+     * This is a file name without extension .tpl
+     * (file should be created in app/view folder )
+     */
     'default_layout' => 'layout',
 
     /**
-    * Language
-    */
+     * Language
+     */
     'default_language' => 'en',
     
     /**
-    * Available languages ('en', 'nl' ...)
-    */
+     * Available languages ('en', 'nl' ...)
+     */
     'all_langs' => [
         'en', 'nl'
     ],
 
     /**
-    * Show errors
-    */
+     * Show errors
+     */
     'show_errors' => true,
 
     /**
-    * Timezone
-    */
+     * Timezone
+     */
     'timezone' => 'Europe/Amsterdam', 
-
-    /**
-    * Cookie params
-    */
-    'cookie'=> [
-        'path'   => "/",
-    ] 
 ];

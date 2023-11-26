@@ -6,19 +6,27 @@
  *
  * @author  Igor Shvartsev (igor.shvartsev@gmail.com)
  * @package Divak
- * @version 1.1
+ * @version 1.2
  */
 class Loader
 {
     /**
-     * @var array $directories 
+     * @var array
      */
     protected static $directories = [];
 
     /**
-     * @var boolean $isRegistered 
+     * @var boolean
      */
     protected static $isRegistered = false;
+
+    /**
+     * @var array 
+     */
+    protected static  $mcDirs = [
+        'controllers',
+        'models',
+    ];
 
     /**
     * Regiser autoload function
@@ -50,8 +58,13 @@ class Loader
 
             if (file_exists($file)) {
                 require_once $file;
-
                 return true;
+            } else {
+                $isMcLoaded = self::mcLoad($dir, $class);
+
+                if ($isMcLoaded) {
+                    return true;
+                }
             }
         }
 
@@ -89,5 +102,44 @@ class Loader
         } else {
             throw new \RuntimeException('Function folder doesn\'t exist: ' . $functionFolder);
         }
+    }
+
+    /**
+     * mc load
+     * 
+     * @var string $dir
+     * @var string $class
+     * 
+     * @return bool
+     */
+    protected static function mcLoad($dir, $class)
+    {
+        foreach (self::$mcDirs as $mcDir) {
+            $file = $dir . DIRECTORY_SEPARATOR . $mcDir . DIRECTORY_SEPARATOR . $class;
+
+            if (file_exists($file)) {
+                require_once $file;
+                return true;
+            } else {
+                $classParts = explode('/', $class);
+                
+                if (count($classParts) > 0 && preg_match('#^Modules$#i', $classParts[0])) {
+                    $moduleFolder = strtolower(array_shift($classParts));
+                    $moduleName = array_shift($classParts);
+                    $file = $dir . DIRECTORY_SEPARATOR 
+                        . $moduleFolder . DIRECTORY_SEPARATOR 
+                        . $moduleName . DIRECTORY_SEPARATOR
+                        . $mcDir . DIRECTORY_SEPARATOR 
+                        . implode('/', $classParts);
+
+                    if (file_exists($file)) {
+                        require_once $file;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
