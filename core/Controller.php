@@ -16,20 +16,6 @@ class Controller
     protected $buffering = true;
 
     /**
-     * Set options
-     *
-     * @param array $options
-     */
-    public function setOptions($options = [])
-    {
-        foreach ($options as $name => $value) {
-            if (isset($this->$name) && is_string($name)) {
-                $this->$name = $value;
-            }
-        }
-    }
-
-    /**
      * Sets view object
      *
      * @param View $view
@@ -76,6 +62,14 @@ class Controller
                 echo $out;
             }
         }
+    }
+
+    /**
+     *  Before action start
+     */
+    public function beforeActionStart() 
+    {
+        // override this method before action starts
     }
    
     /**

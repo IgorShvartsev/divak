@@ -11,7 +11,7 @@ namespace Session;
 class SessionManager
 {
     /**
-     * @var SessionHandlerInterface
+     * @var \SessionHandlerInterface
      */
     protected static $handler;
 
@@ -21,7 +21,7 @@ class SessionManager
      * @param string $type
      * @param array $options
      * 
-     * @throws RuntimeException
+     * @throws \RuntimeException
      */
     public static function setHandler($type = 'file', $options = [])
     {

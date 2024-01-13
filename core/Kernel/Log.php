@@ -92,7 +92,7 @@ class Log
      * @param string $method
      * @param array $args
      * 
-     * @throws Exception
+     * @throws \Exception
      */
     public function __call($method, $args)
     {
