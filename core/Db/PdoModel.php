@@ -189,6 +189,33 @@ class PdoModel extends \Db\PdoDriver
 
         return $this->query($sql)->execute($values)->getLastInsertId();
     }
+
+
+    /**
+     * Save
+     *
+     * @param array $data
+     *
+     * @return string|null ID
+     */
+    public function save(array $data)
+    {
+        list($id, $savedData) = $this->makeSavedData($data);
+
+        if (empty($savedData)) {
+            return;
+        }
+
+        if (!empty($id)) {
+            if (!empty($savedData)) {
+                $this->update($savedData, ['id' => $id]);
+            }
+        } else {
+            $id = $this->insert($savedData);
+        }
+
+        return $id;
+    }
     
   
     /**

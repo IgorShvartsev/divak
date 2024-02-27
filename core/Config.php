@@ -31,34 +31,12 @@ class Config
         $confDir = __DIR__ . self::$confDir;
 
         if (is_dir($confDir)) {
-            $dir = dir($confDir);
-
-            while (false !== ($entry = $dir->read())) {
-                $entryPath = rtrim($confDir, '/') . '/' . $entry;
-
-                if ($entry === '.' || $entry === '..') {
-                    continue;
-                }
-
-                if (is_dir($entryPath)) {
-                    continue;
-                }  // lets not handle files inside subdirs for now
-
-                if (is_file($entryPath)) {
-                    $key = basename($entryPath, '.php');
-                    $data = require_once $entryPath;
-
-                    if (!is_array($data)) {
-                        throw new \Exception('Data is not an array type in ' . $entryPath);
-                    }
-                    
-                    self::$confData[$key] = $data;
-                }
-            }
+            self::setConfig($confDir);
         } else {
             throw new \Exception('Config directory not found ' . $confDir);
         }
     }
+
 
     /**
      * Get value based on key from configuration data
@@ -118,6 +96,43 @@ class Config
             self::arrayFromKeys($keys, $value)
         );
     }
+
+    /**
+     *  Set config
+     * 
+     * @param string $path
+     */
+    protected static function setConfig($path)
+    {
+        $dir = dir($path);
+
+        while (false !== ($entry = $dir->read())) {
+            $entryPath = rtrim($path, '/') . '/' . $entry;
+
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+
+            if (is_dir($entryPath)) {
+                self::setConfig($entryPath);
+            } 
+
+            if (is_file($entryPath)) {
+                $key = basename($entryPath, '.php');
+                $data = require_once $entryPath;
+
+                if (!is_array($data)) {
+                    throw new \Exception('Data is not an array type in ' . $entryPath);
+                }
+                
+                if (!empty(self::$confData[$key])) {
+                    self::$confData[$key] = array_merge(self::$confData[$key], $data);
+                } else {
+                    self::$confData[$key] = $data;
+                }
+            }
+        }
+    }  
 
     /**
      * Create array from array of keys which is an multidimensional index 

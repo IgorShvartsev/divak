@@ -87,4 +87,17 @@ if (!function_exists('url')) {
             
         return $url;
     }
-}    
+} 
+
+if (!function_exists('output')) {
+    /**
+     * Output text
+     * 
+     * @param string $text
+     */
+    function output($text, $lineBreak = "\n")
+    {
+        file_put_contents('php://output', $text . $lineBreak);
+        flush();
+    }
+}

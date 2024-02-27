@@ -181,6 +181,11 @@ class Kernel extends Container
                 'classImplementation' => '\Kernel\EventDispatcher',             
                 'type' => ContainerInterface::BIND_SHARE,
             ],
+            [
+                'className' => \Controller::class,             
+                'classImplementation' => '\Controller',             
+                'type' => ContainerInterface::BIND_FACTORY,
+            ],
         ];
 
         foreach ($coreClasses  as $item) {
@@ -277,8 +282,12 @@ class Kernel extends Container
             $middlewareManager->handleBefore($request, $response);
 
             $controller = (new \Resolver)->resolve($router->controller);
-            
             if ($controller instanceof \Controller) {
+                $options = array(
+                    'baseUrl' => $router->getBaseUrl()
+                );
+
+                $controller->setOptions($options);
                 $reflection = new \ReflectionClass($controller);
 
                 try {
@@ -476,8 +485,10 @@ class Kernel extends Container
         );
         
         $controller->view->setBaseUrl($router->getBaseUrl());
-        $controller->beforeActionStart();
 
+        if (method_exists($controller, 'beforeActionStart')) {
+            $controller->beforeActionStart();
+        }
        
         ob_start();
 
