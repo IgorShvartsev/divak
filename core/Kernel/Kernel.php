@@ -55,7 +55,7 @@ class Kernel extends Container
      * 
      * @param Closure $callback
      */
-    public function run(\Closure $callback = null)
+    public function run(?\Closure $callback = null)
     {
         if ($this->run) {
             return;

@@ -34,7 +34,7 @@ class Controller
      *
      * @param View $view
      */
-    public function setView(\View $view = null)
+    public function setView(?\View $view = null)
     {
         $this->view = $view;
     }

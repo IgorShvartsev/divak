@@ -22,7 +22,7 @@ class IndexController extends \Controller
     *  GET /
     */
     public function index()
-    {	
+    {   
         $data = [];
         $this->render($data);
     }
@@ -33,8 +33,8 @@ class IndexController extends \Controller
     *  GET /json-test
     */
     public function jsonTest()
-    {	 
-   	    return \Response::json(['test'=> 'Welcome']);
+    {    
+        return \Response::json(['test'=> 'Welcome']);
     }
 
     /**
