@@ -238,11 +238,17 @@ class View
      */
     public function partial($template, $params = [])
     {
-        if (file_exists($this->viewPath . $template . '.phtml')) {
+        $file = $this->viewPath . $template . '.phtml';
+
+        if (!file_exists($file) && strpos($this->viewPath, APP_PATH . '/modules') !== false) {
+            $file = APP_PATH . '/views/' . $template . '.phtml';
+        }
+        
+        if (file_exists($file)) {
             array_push($this->templateDataStack, $this->templateData);
             $this->templateData = $params;
             extract($params);
-            include $this->viewPath . $template . '.phtml';
+            include $file;
             $this->templateData = array_pop($this->templateDataStack);
             echo "\n";
         } else {
