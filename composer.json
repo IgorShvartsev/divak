@@ -13,13 +13,15 @@
       }
    },
    "require": {
-      "guzzlehttp/guzzle": "~6.0",
+      "firebase/php-jwt": "^6.11",
+      "gmostafa/php-graphql-client": "^1.13",
+      "guzzlehttp/guzzle": "^7.8",
       "intervention/image": "^2.3",
-      "verot/class.upload.php": "dev-master",
-      "pimple/pimple"  : "~3.0",
-      "monolog/monolog": "^1.25",
       "mashape/unirest-php": "^3.0",
-      "nesbot/carbon": "^2.25"
+      "monolog/monolog": "^1.25",
+      "nesbot/carbon": "^2.25",
+      "pimple/pimple": "~3.0",
+      "verot/class.upload.php": "dev-master"
    },
    "config": {
       "vendor-dir": "vendor",

@@ -30,11 +30,32 @@ class IndexController extends \Controller
     /**
     *  Example of JSON response
     *
-    *  GET /json-test
+    *  GET /json
     */
     public function jsonTest()
     {    
         return \Response::json(['test'=> 'Welcome']);
+    }
+
+    /**
+     * Example of API request
+     * 
+     *  GET /api/xxxx  where xxxx any integer 
+     */
+    public function apiTest()
+    {
+        $id = \Request::getParam('param1', 1);
+
+        $client = new \Library\Api\Rest\Client\RestClient(
+            'Example',
+            [
+                'base_uri' => 'https://jsonplaceholder.typicode.com/'
+            ]
+        );
+        
+        $response = $client->query('posts', 'get', ['id' => $id]);
+
+        \Debug::trace($response);
     }
 
     /**
