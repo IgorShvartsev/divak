@@ -254,7 +254,7 @@ class Kernel extends Container
         }
 
         $request->setHeaders($headers);
-        $request->setMethod($_SERVER['REQUEST_METHOD']);
+        $request->setMethod($_SERVER['REQUEST_METHOD'] ?? 'GET');
     }
 
     /**
@@ -269,7 +269,8 @@ class Kernel extends Container
         $router   = $this->make(\Kernel\Router::class);
         $middlewareManager = $this->make(\Kernel\Http\MiddlewareManager::class);
 
-        $isFoundRoute = $router->parseUrl($_SERVER['REQUEST_URI'], $request->getMethod());
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+        $isFoundRoute = $router->parseUrl($requestUri, $request->getMethod());
 
         if (!$isFoundRoute) {
             throw new ResponseException(\Response::getResponseCodeDescription(404), 404);

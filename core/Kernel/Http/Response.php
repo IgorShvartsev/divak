@@ -117,7 +117,8 @@ class Response
             if ($sapi_name === 'cgi' || $sapi_name === 'cgi-fcgi') {
                 header('Status: ' . $this->codes[$code]);
             } else {
-                header($_SERVER['SERVER_PROTOCOL'] . ' ' . $code . ' ' . $this->codes[$code]);
+                $protocol = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1';
+                header($protocol . ' ' . $code . ' ' . $this->codes[$code]);
             }
         }
     }

@@ -292,7 +292,8 @@ class View
     {
         $lang = strtolower($lang);
         $lang = strtolower(\Config::get('default_lang')) === $lang ? '' : $lang;
-        $url = str_replace($this->baseUrl, '', $_SERVER['REQUEST_URI']);
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+        $url = str_replace($this->baseUrl, '', $requestUri);
         $url = preg_replace('/(\/[^\/]{2})(($)|(\/.*))/', '$4', $url);
 
         if (2 === strlen($lang)) {
