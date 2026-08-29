@@ -53,7 +53,7 @@ class Kernel extends Container
     /**
      * Run application
      * 
-     * @param Closure $callback
+    * @param \Closure $callback
      */
     public function run(?\Closure $callback = null)
     {
@@ -282,6 +282,10 @@ class Kernel extends Container
             // run middlewares before
             $middlewareManager->handleBefore($request, $response);
 
+            if (!is_subclass_of($router->controller, \Controller::class)) {
+                throw new KernelException('Controller ' . $router->controller . ' does not extend base Controller');
+            }
+
             $controller = (new \Resolver)->resolve($router->controller);
             if ($controller instanceof \Controller) {
                 $options = array(
@@ -428,6 +432,7 @@ class Kernel extends Container
     protected function launchControlAction(\Controller $controller, \ReflectionMethod $method)
     {
         $cache = null;
+        $cacheKey = null;
         $request  = $this->make(\Kernel\Http\Request::class);
         $response = $this->make(\Kernel\Http\Response::class);
         $router   = $this->make(\Kernel\Router::class);
@@ -446,19 +451,24 @@ class Kernel extends Container
             $cache = \Cache::factory(\Config::get('cache.type'), $options);
             $cacheKey = $this->getCacheKey($request, \Session::getInstance());
 
-            if ($data = $cache->load($cacheKey)) {
-                if ($data) {
-                    $data = unserialize($data);
+            if ($cachedPayload = $cache->load($cacheKey)) {
+                $data = json_decode((string)$cachedPayload, true);
+
+                // Backward compatibility for older serialized cache payloads.
+                if (!is_array($data)) {
+                    $data = @unserialize($cachedPayload, ['allowed_classes' => false]);
                 }
 
-                foreach ($data['headers'] as $key => $value) {
-                    header("$key:$value");
-                }
+                if (is_array($data) && isset($data['headers']) && isset($data['output'])) {
+                    foreach ((array)$data['headers'] as $key => $value) {
+                        header("$key:$value");
+                    }
 
-                $response->setBody($data['output']);
-                $output  = implode('', $response->getBody());
-                file_put_contents('php://output', $output);
-                exit();
+                    $response->setBody((string)$data['output']);
+                    $output  = implode('', $response->getBody());
+                    file_put_contents('php://output', $output);
+                    exit();
+                }
             }
         }
 
@@ -520,11 +530,18 @@ class Kernel extends Container
         $output  = implode('', $response->getBody());
 
         // if cache is enabled save results to it
-        if ($cache) {
-            $cache->save(serialize([
+        if ($cache && $cacheKey !== null) {
+            $cacheData = [
                 'headers' => $headers,
                 'output'  => $output
-            ]), $cacheKey);
+            ];
+
+            $cachePayload = json_encode($cacheData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            if ($cachePayload === false) {
+                $cachePayload = serialize($cacheData);
+            }
+
+            $cache->save($cachePayload, $cacheKey);
         }
 
         file_put_contents('php://output', $output);

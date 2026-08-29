@@ -21,6 +21,7 @@ class SendMail
      */
     public function __construct($sendFrom)
     {
+        $sendFrom = str_replace(["\r", "\n"], '', (string)$sendFrom);
         $headers = 'MIME-Version: 1.0' . "\r\n";
         $headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
         $headers .= "From: $sendFrom\r\n";
@@ -40,6 +41,9 @@ class SendMail
         if (is_array($to)) {
             $to = implode(',', $to);
         }
+
+        $to = str_replace(["\r", "\n"], '', (string)$to);
+        $subject = str_replace(["\r", "\n"], '', (string)$subject);
         
         return mail($to, $subject, $body, $this->headers);
     }
@@ -58,6 +62,9 @@ class SendMail
         if (is_array($to)) {
             $to = implode(',', $to);
         }
+
+        $to = str_replace(["\r", "\n"], '', (string)$to);
+        $subject = str_replace(["\r", "\n"], '', (string)$subject);
 
         $body = $template->populate($data)->getContent();
 

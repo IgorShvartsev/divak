@@ -38,7 +38,9 @@ class FileHandler implements \SessionHandlerInterface
         $this->savePath = $path;
 
         if (!is_dir($this->savePath)) {
-            mkdir($this->savePath, 0777);
+            if (!mkdir($this->savePath, 0700, true) && !is_dir($this->savePath)) {
+                return false;
+            }
         }
 
         return true;
@@ -75,7 +77,7 @@ class FileHandler implements \SessionHandlerInterface
      */
     public function write($id, $data): bool
     {
-        return file_put_contents("{$this->savePath}/sess_$id", $data) === false ? false : true;
+        return file_put_contents("{$this->savePath}/sess_$id", $data, LOCK_EX) === false ? false : true;
     }
 
     /**

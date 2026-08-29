@@ -31,9 +31,9 @@ class Generator
         for ($i = 0; $i < $len; $i++) {
             if ($firstPosition) {
                 $firstPosition = false;
-                $buf[] = rand(1, 9);
+                $buf[] = self::secureInt(1, 9);
             } else {
-                $buf[] = rand(0, 9);
+                $buf[] = self::secureInt(0, 9);
             }
         }
 
@@ -66,15 +66,32 @@ class Generator
         $buf = [];
         $charSetArrayLength = count($charSetArray);
         for ($i = 0; $i < $len; $i++) {
-            $charSetIdx = rand(0, $charSetArrayLength - 1);
+            $charSetIdx = self::secureInt(0, $charSetArrayLength - 1);
             $charSet = $charSetArray[$charSetIdx];
             $charSetLength = strlen($charSet);
-            $charIndex = rand(0, $charSetLength - 1);
+            $charIndex = self::secureInt(0, $charSetLength - 1);
             $buf[] = $charSet[$charIndex]; 
         }
 
         $result = implode('', $buf);
 
         return $result; 
+    }
+
+
+    /**
+     * Generate random integer using CSPRNG when available.
+     *
+     * @param int $min
+     * @param int $max
+     * @return int
+     */
+    protected static function secureInt($min, $max)
+    {
+        if (function_exists('random_int')) {
+            return call_user_func('random_int', $min, $max);
+        }
+
+        return call_user_func('mt_rand', $min, $max);
     }
 }

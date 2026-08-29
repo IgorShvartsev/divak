@@ -184,7 +184,7 @@ class FileManager
     {
         $absPath = $this->root . '/' . $path . '/' . $newfolder;
 
-        return @mkdir($absPath, 0777);
+        return @mkdir($absPath, 0750);
     }
 
     /**

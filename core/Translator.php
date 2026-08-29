@@ -47,14 +47,16 @@ class Translator
             if ($fp = fopen($this->file, 'w+b')) {
                 fwrite($fp, "<?php\n\t" . '$localization_' . $lang . " = [];\n");
                 fclose($fp);
-                chmod($this->file, 0777);
+                chmod($this->file, 0640);
             } else {
                 throw new \Exception('Could not open file ' . $this->file);
             }
         }
 
         include_once $this->file;
-        $this->data = ${$localization_name};
+        $this->data = isset(${$localization_name}) && is_array(${$localization_name})
+            ? ${$localization_name}
+            : [];
     }
 
     /**
@@ -73,11 +75,13 @@ class Translator
         $this->data[md5($val)] = $val;
         
         if ($fp = fopen($this->file, 'a+b')) {
+            $escapedValue = var_export($val, true);
             fwrite(
                 $fp, 
                 "\t" . '$localization_' . $this->lang 
-                . "['" . md5($val) . "'] = '" . str_replace("'", "\'", $val) . "';\n"
+                . "['" . md5($val) . "'] = " . $escapedValue . ";\n"
             );
+            fclose($fp);
         }
 
         return stripslashes($val);

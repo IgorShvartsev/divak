@@ -23,6 +23,9 @@
       "pimple/pimple": "~3.0",
       "verot/class.upload.php": "dev-master"
    },
+   "scripts": {
+      "check:php85-compat": "sh scripts/php85-compat-check.sh"
+   },
    "config": {
       "vendor-dir": "vendor",
       "process-timeout": 1800,

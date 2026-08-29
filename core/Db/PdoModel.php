@@ -54,11 +54,8 @@ class PdoModel extends \Db\PdoDriver
             return; 
         }
 
-        if (empty($this->table)) {
-            throw new DbException('Property "table" is not defined');
-        }
-
-        $query = 'SELECT * FROM `'  . $this->table . '` '
+        $table = $this->getSafeTableName();
+        $query = 'SELECT * FROM `'  . $table . '` '
             . ' WHERE `id` = ?';
         $entry = $this->query($query)->fetch([$id]);
 
@@ -78,11 +75,8 @@ class PdoModel extends \Db\PdoDriver
             return false; 
         }
 
-        if (empty($this->table)) {
-            throw new DbException('Property "table" is not defined');
-        }
-
-        $query = 'DELETE FROM `' . $this->table . '` WHERE `id` = ?';
+        $table = $this->getSafeTableName();
+        $query = 'DELETE FROM `' . $table . '` WHERE `id` = ?';
         $this->query($query)->execute([$id]); 
 
         return true;
@@ -133,10 +127,12 @@ class PdoModel extends \Db\PdoDriver
             return false;
         }
 
+        $table = $this->getSafeTableName();
+
         $keys = array_keys($hash);
         
         foreach ($keys as $idx => $key) {
-            $keys[$idx] = '`' . $key . '`';
+            $keys[$idx] = '`' . $this->sanitizeIdentifier($key, 'column') . '`';
         }
         
         $keys = join(' = ? , ', $keys);
@@ -149,15 +145,15 @@ class PdoModel extends \Db\PdoDriver
                 $operator = $matches[0];
                 $f = str_replace($operator, '', $f);
                 $f = trim($f);
-                $whereKeys[] = '`' . $f . '` ' . $operator . ' ? ';
+                $whereKeys[] = '`' . $this->sanitizeIdentifier($f, 'column') . '` ' . $operator . ' ? ';
             } else {
-                $whereKeys[] =  '`' . $f . '`' . ' = ? ';
+                $whereKeys[] =  '`' . $this->sanitizeIdentifier($f, 'column') . '`' . ' = ? ';
             }
         }
 
         $whereKeys = join(' AND ', $whereKeys);
         $whereValues = array_values($where) ;
-        $sql = "UPDATE {$this->table} SET $keys WHERE $whereKeys";
+        $sql = "UPDATE `{$table}` SET $keys WHERE $whereKeys";
         $this->query($sql)->execute(array_merge($values, $whereValues));
         
         return true;
@@ -176,16 +172,18 @@ class PdoModel extends \Db\PdoDriver
             return false;
         }
 
+        $table = $this->getSafeTableName();
+
         $keys = array_keys($hash);
         
         foreach ($keys as $i => $v) {
-            $keys[$i] = '`$v`';
+            $keys[$i] = '`' . $this->sanitizeIdentifier($v, 'column') . '`';
         }
         
         $keys = join(', ',  $keys) ;
         $values = array_values($hash) ;
         $q = $this->generatePlaceHolders(count($hash)) ;
-        $sql = "INSERT INTO {$this->table} ($keys) VALUES ($q)";
+        $sql = "INSERT INTO `{$table}` ($keys) VALUES ($q)";
 
         return $this->query($sql)->execute($values)->getLastInsertId();
     }
@@ -215,6 +213,38 @@ class PdoModel extends \Db\PdoDriver
         }
 
         return $id;
+    }
+
+    /**
+     * Validate identifier and return safe SQL token.
+     *
+     * @param string $identifier
+     * @param string $type
+     * @return string
+     */
+    protected function sanitizeIdentifier($identifier, $type = 'identifier')
+    {
+        $identifier = trim((string)$identifier);
+
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $identifier)) {
+            throw new DbException('Unsafe SQL ' . $type . ' "' . $identifier . '"');
+        }
+
+        return $identifier;
+    }
+
+    /**
+     * Return validated table name.
+     *
+     * @return string
+     */
+    protected function getSafeTableName()
+    {
+        if (empty($this->table)) {
+            throw new DbException('Property "table" is not defined');
+        }
+
+        return $this->sanitizeIdentifier($this->table, 'table');
     }
     
   

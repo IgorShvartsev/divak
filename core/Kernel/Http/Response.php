@@ -148,8 +148,12 @@ class Response
      */
     public function setHeader($key, $value)
     {
-        $key = str_replace('_', '-', strtolower($key));
-        $this->headers[$key] = $value;
+        $key = $this->sanitizeHeaderName($key);
+        if ($key === '') {
+            return;
+        }
+
+        $this->headers[$key] = $this->sanitizeHeaderValue($value);
     }
 
     /**
@@ -265,6 +269,10 @@ class Response
     {
         $this->responseCodeHeader(301);
 
+        if ($url !== null) {
+            $url = str_replace(["\r", "\n"], '', (string)$url);
+        }
+
         if (!$url) {
             header('Location: index.php');
         } elseif (preg_match('#^http#i', $url)) {
@@ -274,5 +282,30 @@ class Response
         }
 
         exit(0);
+    }
+
+    /**
+     * Normalize and validate header name token.
+     *
+     * @param string $key
+     * @return string
+     */
+    protected function sanitizeHeaderName($key)
+    {
+        $key = str_replace('_', '-', strtolower((string)$key));
+        $key = preg_replace('/[^a-z0-9\-]/', '', $key);
+
+        return trim($key, '-');
+    }
+
+    /**
+     * Remove line breaks from header value.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    protected function sanitizeHeaderValue($value)
+    {
+        return trim(str_replace(["\r", "\n"], ' ', (string)$value));
     }
 }
